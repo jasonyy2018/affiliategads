@@ -1,0 +1,71 @@
+{
+  "categories": [
+    "hiking boots",
+    "trail running shoes",
+    "camping tents",
+    "backpacking daypacks"
+  ],
+  "use_cases": [
+    "flat feet",
+    "wide feet",
+    "beginners",
+    "heavy load",
+    "plantar fasciitis",
+    "winter snow",
+    "long distance",
+    "easy setup"
+  ],
+  "price_bands": [
+    {
+      "label": "under $100",
+      "min": 0,
+      "max": 100
+    },
+    {
+      "label": "under $150",
+      "min": 0,
+      "max": 150
+    },
+    {
+      "label": "under $200",
+      "min": 0,
+      "max": 200
+    },
+    {
+      "label": "under $300",
+      "min": 0,
+      "max": 300
+    },
+    {
+      "label": "premium",
+      "min": 200,
+      "max": 800
+    }
+  ],
+  "excluded_combinations": [
+    {
+      "category": "camping tents",
+      "use_case": "flat feet"
+    },
+    {
+      "category": "camping tents",
+      "use_case": "wide feet"
+    },
+    {
+      "category": "camping tents",
+      "use_case": "plantar fasciitis"
+    },
+    {
+      "category": "backpacking daypacks",
+      "use_case": "flat feet"
+    },
+    {
+      "category": "backpacking daypacks",
+      "use_case": "wide feet"
+    },
+    {
+      "category": "backpacking daypacks",
+      "use_case": "plantar fasciitis"
+    }
+  ]
+}

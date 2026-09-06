@@ -1,0 +1,37 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: affiliategads_pseo_web
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_AMAZON_AFFILIATE_TAG=${NEXT_PUBLIC_AMAZON_AFFILIATE_TAG:-jyu0a-20}
+      - NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+      - NEXT_PUBLIC_GA_CONVERSION_ID=${NEXT_PUBLIC_GA_CONVERSION_ID:-AW-123456789}
+      - NEXT_PUBLIC_GA_CONVERSION_LABEL=${NEXT_PUBLIC_GA_CONVERSION_LABEL:-}
+      - NEXT_PUBLIC_POSTHOG_KEY=${NEXT_PUBLIC_POSTHOG_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - CUSTOM_AI_BASE_URL=${CUSTOM_AI_BASE_URL:-}
+      - CUSTOM_AI_API_KEY=${CUSTOM_AI_API_KEY:-}
+      - CUSTOM_AI_MODEL=${CUSTOM_AI_MODEL:-}
+      - CUSTOM_AI_PROTOCOL=${CUSTOM_AI_PROTOCOL:-openai}
+      - AI_MODEL_CHOICE=${AI_MODEL_CHOICE:-auto}
+      - BING_API_KEY=${BING_API_KEY:-}
+      - SOCIAL_WEBHOOK_URL=${SOCIAL_WEBHOOK_URL:-}
+      - AYRSHARE_API_KEY=${AYRSHARE_API_KEY:-}
+      - SERPAPI_KEY=${SERPAPI_KEY:-}
+      - PA_ACCESS_KEY=${PA_ACCESS_KEY:-}
+      - PA_SECRET_KEY=${PA_SECRET_KEY:-}
+      - PA_PARTNER_TAG=${PA_PARTNER_TAG:-}
+      - RESEND_API_KEY=${RESEND_API_KEY:-}
+      - LEADS_FROM_EMAIL=${LEADS_FROM_EMAIL:-}
+      - ADMIN_SECRET_KEY=${ADMIN_SECRET_KEY:?Set ADMIN_SECRET_KEY (min 6 chars) in .env}
+    volumes:
+      - ./data:/app/data
+      - ./content:/app/content
+      - ./reports:/app/reports

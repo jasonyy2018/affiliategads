@@ -1,0 +1,23 @@
+# 依赖
+node_modules/
+
+# Next.js 构建产物
+.next/
+out/
+
+# 环境变量与密钥（绝不提交）
+.env
+.env.local
+.env.*.local
+
+# 运行时用户数据（含 PII：买家邮箱）
+data/leads.json
+
+# 日志与系统文件
+*.log
+.DS_Store
+Thumbs.db
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
