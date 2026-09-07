@@ -77,8 +77,10 @@ def get_config() -> dict[str, str]:
     domain = (
         file_envs.get("NEXT_PUBLIC_SITE_URL")
         or os.environ.get("NEXT_PUBLIC_SITE_URL")
-        or "https://gear-oracle.com"
+        or "https://aads.togomol.com"
     ).rstrip("/")
+    if not domain or "localhost" in domain or "127.0.0.1" in domain:
+        domain = "https://aads.togomol.com"
 
     return {
         "webhook_url": webhook_url,

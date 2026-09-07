@@ -13,6 +13,7 @@ import {
 import { isSerpApiConfigured, queryLiveSerp } from './serpApi';
 import fs from 'fs';
 import path from 'path';
+import { getSiteUrl, loadMergedSettings } from '../siteConfig';
 
 export interface RankResult {
   keyword: string;
@@ -63,7 +64,8 @@ export async function runSerpTracker(siteUrl?: string): Promise<{
   results: RankResult[];
 }> {
   return withLock('serp_tracker', async () => {
-    const base = siteUrl || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+    loadMergedSettings();
+    const base = siteUrl || getSiteUrl();
     const keywords = loadTargetKeywords();
     const matrix = loadMatrix();
 

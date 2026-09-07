@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 
 import DisclaimerFooter from '@/components/DisclaimerFooter';
+import { getSiteUrl } from '@/lib/siteConfig';
 
 interface MatrixData {
   categories: string[];
@@ -102,7 +103,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const cleanCategory = category.replace(/-/g, ' ');
   const title = `${cleanCategory.charAt(0).toUpperCase() + cleanCategory.slice(1)} Hub: Complete 2026 Comparison Directory`;
   const description = `Browse all tested & ranked comparisons for ${cleanCategory}. Filter by use case, foot type, and price band with lab-benchmarked ratings.`;
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  const siteUrl = getSiteUrl();
 
   return {
     title,

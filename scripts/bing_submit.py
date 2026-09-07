@@ -63,6 +63,11 @@ def load_env() -> dict[str, str]:
         except Exception:
             pass
 
+    # 生产域名兜底保护：严禁向 Bing 提交 localhost 虚假链接
+    site_url = env_vars.get("NEXT_PUBLIC_SITE_URL", "")
+    if not site_url or "localhost" in site_url or "127.0.0.1" in site_url:
+        env_vars["NEXT_PUBLIC_SITE_URL"] = "https://aads.togomol.com"
+
     return env_vars
 
 
@@ -237,7 +242,7 @@ def main() -> None:
     args = parser.parse_args()
 
     env = load_env()
-    site_url = env.get("NEXT_PUBLIC_SITE_URL", "http://localhost:3000")
+    site_url = env.get("NEXT_PUBLIC_SITE_URL", "https://aads.togomol.com")
     bing_key = env.get("BING_API_KEY", "")
 
     urls = collect_urls(site_url)

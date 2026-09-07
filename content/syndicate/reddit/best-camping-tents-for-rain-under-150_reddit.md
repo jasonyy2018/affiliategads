@@ -2,7 +2,7 @@
 title: "Reddit Gear Talk: Which budget camping tent survives torrential rain without leaking?"
 suggested_subreddit: "r/CampingGear or r/Ultralight"
 target_product: "Coleman Sundome Camping Tent 4-Person"
-backlink_url: "http://localhost:3000/best/best-camping-tents-for-rain-under-150"
+backlink_url: "https://aads.togomol.com/best/best-camping-tents-for-rain-under-150"
 ---
 
 ### [Discussion / Review] Tested 12 Models for Camping Tents: Here is what the lab numbers actually say
@@ -27,6 +27,6 @@ Most brands claim "waterproof" or "maximum arch support," but when measured on a
 3. Forefoot anatomical toe box width matched the advertised specification without painful lateral pinky-toe pinch.
 
 If you want to see the full head-to-head laboratory comparison table, caliper measurements, and drop angles, check out our full breakdown here:
-👉 [http://localhost:3000 - Full Tested & Ranked Guide](http://localhost:3000/best/best-camping-tents-for-rain-under-150)
+👉 [https://aads.togomol.com - Full Tested & Ranked Guide](https://aads.togomol.com/best/best-camping-tents-for-rain-under-150)
 
 Happy to answer any specific fitment or sizing questions in the comments!

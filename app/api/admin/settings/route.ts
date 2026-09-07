@@ -2,56 +2,17 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import { isAuthorized, unauthorized } from '@/lib/adminAuth';
+import {
+  SETTINGS_JSON_PATH,
+  ENV_LOCAL_PATH,
+  loadMergedSettings,
+  parseEnvFile,
+  getSiteUrl,
+  autoDetectAndSaveSiteUrl,
+  DEFAULT_PRODUCTION_DOMAIN,
+} from '@/lib/siteConfig';
 
-const SETTINGS_JSON_PATH = path.join(process.cwd(), 'data', 'settings.json');
-const ENV_LOCAL_PATH = path.join(process.cwd(), '.env.local');
 
-function parseEnvFile(filePath: string): Record<string, string> {
-  const result: Record<string, string> = {};
-  try {
-    if (!fs.existsSync(/*turbopackIgnore: true*/ filePath)) return result;
-    const content = fs.readFileSync(/*turbopackIgnore: true*/ filePath, 'utf-8');
-    const lines = content.split('\n');
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (!trimmed || trimmed.startsWith('#') || !trimmed.includes('=')) continue;
-      const [key, ...rest] = trimmed.split('=');
-      result[key.trim()] = rest.join('=').trim().replace(/^["']|["']$/g, '');
-    }
-  } catch (err: any) {
-    console.warn(`[Settings] Notice: could not read ${filePath} (${err.message}).`);
-  }
-  return result;
-}
-
-/**
- * 统一合并系统设置：优先读取持久化数据库 data/settings.json（宿主机 ./data 映射，永不丢失），
- * 次之读取 .env.local 与 process.env 作为底座。
- */
-function loadMergedSettings(): Record<string, string> {
-  const result: Record<string, string> = {};
-
-  // 1. 读取 .env.local
-  const fileEnvs = parseEnvFile(ENV_LOCAL_PATH);
-  Object.assign(result, fileEnvs);
-
-  // 2. 读取持久化文件数据库 data/settings.json (宿主已做 ./data 映射，最高权威，重启永不丢失)
-  try {
-    if (fs.existsSync(/*turbopackIgnore: true*/ SETTINGS_JSON_PATH)) {
-      const content = fs.readFileSync(/*turbopackIgnore: true*/ SETTINGS_JSON_PATH, 'utf-8');
-      const dbSettings = JSON.parse(content);
-      for (const [k, v] of Object.entries(dbSettings)) {
-        if (typeof v === 'string' && v.trim()) {
-          result[k] = v.trim();
-        }
-      }
-    }
-  } catch (err: any) {
-    console.warn(`[Settings DB] Notice: could not read ${SETTINGS_JSON_PATH}:`, err.message);
-  }
-
-  return result;
-}
 
 /**
  * 原地更新 .env.local：逐行替换已存在的 key，新 key 追加到末尾。
@@ -116,9 +77,11 @@ export async function GET(req: Request) {
   const customModel = merged['CUSTOM_AI_MODEL'] || process.env.CUSTOM_AI_MODEL || 'deepseek-chat';
   const customProtocol = merged['CUSTOM_AI_PROTOCOL'] || process.env.CUSTOM_AI_PROTOCOL || 'openai';
 
-  // 搜索引擎与收录
+  // 搜索引擎与收录 (智能识别与自动绑定域名)
   const bingApiKey = merged['BING_API_KEY'] || process.env.BING_API_KEY || '';
-  const siteUrl = merged['NEXT_PUBLIC_SITE_URL'] || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  const hostHeader = req.headers.get('x-forwarded-host') || req.headers.get('host');
+  const protoHeader = req.headers.get('x-forwarded-proto') || 'https';
+  const siteUrl = autoDetectAndSaveSiteUrl(hostHeader, protoHeader);
 
   // 社媒广播与 Webhook 中继
   const socialWebhookUrl = merged['SOCIAL_WEBHOOK_URL'] || process.env.SOCIAL_WEBHOOK_URL || '';

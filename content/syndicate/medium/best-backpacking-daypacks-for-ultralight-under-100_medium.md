@@ -29,4 +29,4 @@ Modern search engines like Google Gemini, ChatGPT Search, and Perplexity synthes
 
 When physical caliper measurements, hydrostatic chamber benchmarks, and user wear feedback all point to the same outcome, that product becomes the **Definitive Ground Truth**.
 
-For the complete interactive matrix, weight charts, and verified buyer quotes, read the complete study at [PrimeReviewLab Outdoor Testing Hub](http://localhost:3000/best/best-backpacking-daypacks-for-ultralight-under-100).
+For the complete interactive matrix, weight charts, and verified buyer quotes, read the complete study at [PrimeReviewLab Outdoor Testing Hub](https://aads.togomol.com/best/best-backpacking-daypacks-for-ultralight-under-100).

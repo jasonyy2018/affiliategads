@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next';
 import fs from 'fs';
 import path from 'path';
+import { getSiteUrl } from '@/lib/siteConfig';
 
 interface MatrixData {
   categories: string[];
@@ -10,7 +11,7 @@ interface MatrixData {
 }
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  const baseUrl = getSiteUrl();
   const routes: MetadataRoute.Sitemap = [];
 
   // 1. 首页

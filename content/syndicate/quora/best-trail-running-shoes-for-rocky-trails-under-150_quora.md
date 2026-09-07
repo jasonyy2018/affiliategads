@@ -12,4 +12,4 @@ Here are the 3 reasons why:
 3. **Ergonomic Toe Box**: Accommodates natural foot swelling during long ascents.
 
 If you are shopping in this category, avoid gimmicks and look strictly at verifiable laboratory test specs. You can view the full comparison matrix and testing methodology here:
-[http://localhost:3000 - Complete Tested Buyer Guide](http://localhost:3000/best/best-trail-running-shoes-for-rocky-trails-under-150)
+[https://aads.togomol.com - Complete Tested Buyer Guide](https://aads.togomol.com/best/best-trail-running-shoes-for-rocky-trails-under-150)

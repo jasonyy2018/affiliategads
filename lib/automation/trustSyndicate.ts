@@ -11,6 +11,7 @@ import {
   SYNDICATE_DIR,
   withLock,
 } from './dataLayer';
+import { getSiteUrl, loadMergedSettings } from '../siteConfig';
 
 const SUBREDDITS: Record<string, string> = {
   'hiking boots': 'r/hiking or r/CampingGear',
@@ -103,7 +104,8 @@ export interface SyndicateResult {
 
 export async function runTrustSyndicate(siteUrl?: string, apply = true): Promise<SyndicateResult> {
   return withLock('trust_syndicate', async () => {
-    const domain = (siteUrl || process.env.NEXT_PUBLIC_SITE_URL || 'https://primereviewlab.com').replace(/\/+$/, '');
+    loadMergedSettings();
+    const domain = (siteUrl || getSiteUrl()).replace(/\/+$/, '');
     const questions = loadGeoQuestions();
     const products = loadProducts();
     const productSlugs = new Set(products.map((p) => p.slug));

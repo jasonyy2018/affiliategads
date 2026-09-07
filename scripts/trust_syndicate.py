@@ -151,7 +151,16 @@ def main():
     print("🚀 启动跨平台第三方信任证据链生成引擎 (AirOps 85% Rule)")
     print("=" * 80)
 
-    domain = os.getenv("NEXT_PUBLIC_SITE_URL", "http://localhost:3000")
+    settings_file = DATA_DIR / "settings.json"
+    domain = "https://aads.togomol.com"
+    if settings_file.exists():
+        try:
+            domain = json.load(open(settings_file, "r", encoding="utf-8")).get("NEXT_PUBLIC_SITE_URL", domain)
+        except Exception:
+            pass
+    domain = os.getenv("NEXT_PUBLIC_SITE_URL", domain)
+    if not domain or "localhost" in domain or "127.0.0.1" in domain:
+        domain = "https://aads.togomol.com"
     questions = load_geo_questions()
 
     if not questions:

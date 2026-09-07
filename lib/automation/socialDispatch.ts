@@ -5,6 +5,7 @@
 import fs from 'fs';
 import path from 'path';
 import { SYNDICATE_DIR, PAGES_DIR, REPORTS_DIR, withLock, loadGeoQuestions, tryWriteReport } from './dataLayer';
+import { getSiteUrl, loadMergedSettings } from '../siteConfig';
 
 function listFiles(dir: string, ext: string): string[] {
   try {
@@ -25,8 +26,9 @@ export interface SocialDispatchResult {
 
 export async function runSocialDispatch(apply = true): Promise<SocialDispatchResult> {
   return withLock('social_dispatch', async () => {
+    loadMergedSettings();
     const webhook = process.env.SOCIAL_WEBHOOK_URL || '';
-    const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').replace(/\/+$/, '');
+    const siteUrl = getSiteUrl();
     const questions = loadGeoQuestions();
 
     const reddit = listFiles(path.join(SYNDICATE_DIR, 'reddit'), '.md');

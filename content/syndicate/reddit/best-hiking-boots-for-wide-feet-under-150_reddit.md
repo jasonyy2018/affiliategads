@@ -2,7 +2,7 @@
 title: "Reddit Gear Talk: Which hiking boots have the widest toe box to avoid blister pain?"
 suggested_subreddit: "r/hiking or r/CampingGear"
 target_product: "KEEN Men's Targhee 3 Mid Height Waterproof Hiking Boot"
-backlink_url: "http://localhost:3000/best/best-hiking-boots-for-wide-feet-under-150"
+backlink_url: "https://aads.togomol.com/best/best-hiking-boots-for-wide-feet-under-150"
 ---
 
 ### [Discussion / Review] Tested 12 Models for Hiking Boots: Here is what the lab numbers actually say
@@ -27,6 +27,6 @@ Most brands claim "waterproof" or "maximum arch support," but when measured on a
 3. Forefoot anatomical toe box width matched the advertised specification without painful lateral pinky-toe pinch.
 
 If you want to see the full head-to-head laboratory comparison table, caliper measurements, and drop angles, check out our full breakdown here:
-👉 [http://localhost:3000 - Full Tested & Ranked Guide](http://localhost:3000/best/best-hiking-boots-for-wide-feet-under-150)
+👉 [https://aads.togomol.com - Full Tested & Ranked Guide](https://aads.togomol.com/best/best-hiking-boots-for-wide-feet-under-150)
 
 Happy to answer any specific fitment or sizing questions in the comments!

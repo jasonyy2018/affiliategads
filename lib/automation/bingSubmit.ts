@@ -7,6 +7,7 @@ import fs from 'fs';
 import path from 'path';
 import { PAGES_DIR, DATA_DIR, REPORTS_DIR, withLock, readJson, tryWriteReport } from './dataLayer';
 import type { MatrixData } from './dataLayer';
+import { getSiteUrl, loadMergedSettings } from '../siteConfig';
 
 function collectUrls(siteUrl: string): string[] {
   const clean = siteUrl.replace(/\/+$/, '');
@@ -48,7 +49,8 @@ export interface BingSubmitResult {
 
 export async function runBingSubmit(apply = true): Promise<BingSubmitResult> {
   return withLock('bing_submit', async () => {
-    const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').replace(/\/+$/, '');
+    loadMergedSettings();
+    const siteUrl = getSiteUrl();
     const apiKey = process.env.BING_API_KEY || '';
     const urls = collectUrls(siteUrl);
 

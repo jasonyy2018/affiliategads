@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { isAuthorized, unauthorized } from '@/lib/adminAuth';
 import { executeTask, TASK_REGISTRY } from '@/lib/automation';
+import { autoDetectAndSaveSiteUrl } from '@/lib/siteConfig';
 
 export const maxDuration = 300; // 长任务 (pSEO 生成 / cron pipeline) 需要更长时间
 
@@ -8,6 +9,10 @@ export async function POST(req: Request) {
   if (!isAuthorized(req)) return unauthorized();
 
   try {
+    const hostHeader = req.headers.get('x-forwarded-host') || req.headers.get('host');
+    const protoHeader = req.headers.get('x-forwarded-proto') || 'https';
+    autoDetectAndSaveSiteUrl(hostHeader, protoHeader);
+
     const body = await req.json().catch(() => ({}));
     const { task, ...opts } = body || {};
 

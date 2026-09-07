@@ -146,7 +146,16 @@ def main() -> None:
         sys.exit(1)
 
     keywords = [line.strip() for line in open(args.keywords, "r", encoding="utf-8") if line.strip()]
-    site_url = os.environ.get("NEXT_PUBLIC_SITE_URL", "http://localhost:3000")
+    settings_file = DATA_DIR / "settings.json"
+    site_url = "https://aads.togomol.com"
+    if settings_file.exists():
+        try:
+            site_url = json.load(open(settings_file, "r", encoding="utf-8")).get("NEXT_PUBLIC_SITE_URL", site_url)
+        except Exception:
+            pass
+    site_url = os.environ.get("NEXT_PUBLIC_SITE_URL", site_url)
+    if not site_url or "localhost" in site_url or "127.0.0.1" in site_url:
+        site_url = "https://aads.togomol.com"
 
     all_results: list[RankResult] = []
 

@@ -2,7 +2,7 @@
 title: "Reddit Gear Talk: How many miles do trail running shoes typically last before losing cushion?"
 suggested_subreddit: "r/trailrunning or r/running"
 target_product: "Brooks Men's Cascadia 17 Trail Running Shoe"
-backlink_url: "http://localhost:3000/best/best-trail-running-shoes-for-durability-under-150"
+backlink_url: "https://aads.togomol.com/best/best-trail-running-shoes-for-durability-under-150"
 ---
 
 ### [Discussion / Review] Tested 12 Models for Trail Running Shoes: Here is what the lab numbers actually say
@@ -27,6 +27,6 @@ Most brands claim "waterproof" or "maximum arch support," but when measured on a
 3. Forefoot anatomical toe box width matched the advertised specification without painful lateral pinky-toe pinch.
 
 If you want to see the full head-to-head laboratory comparison table, caliper measurements, and drop angles, check out our full breakdown here:
-👉 [http://localhost:3000 - Full Tested & Ranked Guide](http://localhost:3000/best/best-trail-running-shoes-for-durability-under-150)
+👉 [https://aads.togomol.com - Full Tested & Ranked Guide](https://aads.togomol.com/best/best-trail-running-shoes-for-durability-under-150)
 
 Happy to answer any specific fitment or sizing questions in the comments!

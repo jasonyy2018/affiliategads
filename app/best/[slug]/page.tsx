@@ -25,6 +25,7 @@ import AiDirectAnswer from '@/components/AiDirectAnswer';
 import StickyFloatingBuyBar from '@/components/StickyFloatingBuyBar';
 import ProductMatcherQuiz from '@/components/ProductMatcherQuiz';
 import RelatedGuides from '@/components/RelatedGuides';
+import { getSiteUrl } from '@/lib/siteConfig';
 
 interface MatrixData {
   categories: string[];
@@ -160,7 +161,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const { pageData, matrix } = loadData(slug);
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  const siteUrl = getSiteUrl();
 
   if (pageData) {
     const pageTitle = `${pageData.title} | Buyer Comparison Matrix`;
@@ -264,7 +265,7 @@ export default async function BestComparisonPage({ params }: Props) {
     notFound();
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  const siteUrl = getSiteUrl();
   const pageUrl = `${siteUrl}/best/${slug}`;
   const hubUrl = `/hub/${displayCategory.toLowerCase().replace(/\s+/g, '-')}`;
 

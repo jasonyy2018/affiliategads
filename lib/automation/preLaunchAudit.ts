@@ -5,6 +5,7 @@
 import fs from 'fs';
 import path from 'path';
 import { loadProducts, PAGES_DIR, countFiles, withLock } from './dataLayer';
+import { getSiteUrl, loadMergedSettings } from '../siteConfig';
 
 export interface PreLaunchCheck {
   id: string;
@@ -24,10 +25,11 @@ export interface PreLaunchResult {
 export async function runPreLaunchAudit(): Promise<PreLaunchResult> {
   return withLock('prelaunch', async () => {
     const checks: PreLaunchCheck[] = [];
+    const settings = loadMergedSettings();
     const env = process.env;
 
     // ---- 1. 生产域名 ----
-    const siteUrl = env.NEXT_PUBLIC_SITE_URL || '';
+    const siteUrl = getSiteUrl();
     const isProdDomain = /^https:\/\/(?!localhost|127\.0\.0\.1)/.test(siteUrl);
     checks.push({
       id: 'site-url',

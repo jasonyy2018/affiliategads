@@ -29,6 +29,7 @@ import AiDirectAnswer from '@/components/AiDirectAnswer';
 import StickyFloatingBuyBar from '@/components/StickyFloatingBuyBar';
 import PriceHistoryBadge from '@/components/PriceHistoryBadge';
 import { getPriceInsight } from '@/lib/automation/priceTracker';
+import { getSiteUrl } from '@/lib/siteConfig';
 
 interface ReviewData {
   slug: string;
@@ -257,7 +258,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const data = getReviewContent(slug);
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  const siteUrl = getSiteUrl();
 
   if (!data) {
     return {
