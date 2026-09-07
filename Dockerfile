@@ -32,6 +32,9 @@ RUN npm run build
 FROM node:22-alpine AS runner
 WORKDIR /app
 
+# 安装 su-exec 用于在 entrypoint 中优雅降权
+RUN apk add --no-cache su-exec
+
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
@@ -55,12 +58,9 @@ RUN mkdir -p /app/reports && \
     touch /app/.env.local && \
     chmod 664 /app/.env.local
 
-# Root 入口：启动时修正 bind-mount 卷属主（宿主目录 uid 与容器 uid 不一致
-# 是自动化任务 EACCES 的根因），然后降权到 nextjs 运行。
+# Root 入口：启动时修正 bind-mount 卷属主，然后通过 su-exec 降权到 nextjs 运行。
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
-
-USER nextjs
 
 EXPOSE 3000
 

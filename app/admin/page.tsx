@@ -240,20 +240,47 @@ export default function AdminDashboardPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password: pwd }),
       });
-      const data = await res.json();
-      if (data.success) {
+
+      let data: any = null;
+      const contentType = res.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        try {
+          data = await res.json();
+        } catch {
+          data = null;
+        }
+      } else {
+        const text = await res.text().catch(() => '');
+        console.warn('Non-JSON response from /api/admin/auth:', res.status, text);
+      }
+
+      if (res.ok && data?.success) {
         sessionStorage.setItem('admin_token', data.token);
         setIsAuthorized(true);
         fetchProducts();
         runDiagnostics();
         fetchSettings();
+        fetchReports();
       } else if (res.status === 429) {
-        setAuthError(data.error || 'Too many attempts. Try again later.');
+        setAuthError(data?.error || (lang === 'zh' ? '尝试过于频繁，请 5 分钟后再试 (429 Too Many Requests)' : 'Too many attempts. Try again later (429).'));
+      } else if (res.status === 401) {
+        setAuthError(data?.error || (lang === 'zh' ? '管理访问密钥不正确，请重新输入。' : 'Incorrect admin access key.'));
+      } else if (res.status === 502 || res.status === 504) {
+        setAuthError(lang === 'zh'
+          ? `网关连接异常 (HTTP ${res.status}): 后端服务尚未就绪或正在重启，请稍候 10 秒后刷新重试。`
+          : `Gateway Error (HTTP ${res.status}): Backend service is starting or restarting. Please retry in a few seconds.`);
+      } else if (!res.ok) {
+        setAuthError(data?.error || (lang === 'zh'
+          ? `服务器响应异常 (HTTP ${res.status} ${res.statusText || ''})`
+          : `Server error (HTTP ${res.status} ${res.statusText || ''})`));
       } else {
-        setAuthError(data.error || 'Invalid Admin Access Key.');
+        setAuthError(data?.error || (lang === 'zh' ? '登录鉴权未通过，请重试。' : 'Authentication failed.'));
       }
-    } catch {
-      setAuthError('Connection failed. Please verify server status.');
+    } catch (err: any) {
+      console.error('Login connection error:', err);
+      setAuthError(lang === 'zh'
+        ? `网络连接失败 (${err?.message || 'Connection failed'}): 无法连接至服务器，请检查网络或后端容器运行状态。`
+        : `Connection failed (${err?.message || 'Network error'}). Please verify server status.`);
     } finally {
       setAuthLoading(false);
     }
@@ -629,9 +656,12 @@ export default function AdminDashboardPage() {
             </button>
           </form>
 
-          <div className="pt-2 border-t border-slate-800/80 text-center">
+          <div className="pt-3 border-t border-slate-800/80 text-center space-y-1">
             <p className="text-[11px] text-slate-400">
               {t.gateHint}
+            </p>
+            <p className="text-[10px] text-slate-500 font-medium tracking-wide">
+              {t.copyright || '网站版本归 WSAI & WCKJ 所有'}
             </p>
           </div>
         </div>
@@ -1480,6 +1510,11 @@ export default function AdminDashboardPage() {
       </div>
     )}
   </main>
+
+      {/* 底部版权声明 */}
+      <footer className="py-6 border-t border-slate-800/80 text-center text-xs text-slate-500">
+        <p>{t.copyright || '网站版本归 WSAI & WCKJ 所有'} • OPC Command Center</p>
+      </footer>
 
       {/* 全系统总控配置 Modal 弹窗 */}
       {isSettingsOpen && (

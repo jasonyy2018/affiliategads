@@ -26,7 +26,7 @@ export default function DisclaimerFooter() {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-gray-200/60 text-gray-400">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span>Independent Editorial Reviews © {currentYear}. All Rights Reserved.</span>
+            <span>Independent Editorial Reviews © {currentYear} WSAI &amp; WCKJ. 网站版本归 WSAI &amp; WCKJ 所有。 All Rights Reserved.</span>
           </div>
           <div className="flex items-center gap-4 text-gray-500">
             <a href="#privacy" className="hover:underline">Privacy Policy</a>

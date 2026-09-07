@@ -12,12 +12,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { password } = await req.json();
+    const body = await req.json().catch(() => ({}));
+    const password = body?.password;
     const result = verifyPassword(typeof password === 'string' ? password : '');
 
     if (!result.ok) {
       return NextResponse.json(
-        { success: false, error: result.error },
+        { success: false, error: result.error || 'Incorrect admin access key.' },
         { status: 401 }
       );
     }
@@ -28,9 +29,10 @@ export async function POST(req: NextRequest) {
       message: 'Authentication successful.',
       token: result.token,
     });
-  } catch {
+  } catch (err: any) {
+    console.error('Auth Route Error:', err);
     return NextResponse.json(
-      { success: false, error: 'Server error during authentication.' },
+      { success: false, error: `Server error during authentication: ${err?.message || 'Unknown'}` },
       { status: 500 }
     );
   }

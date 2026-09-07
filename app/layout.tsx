@@ -13,6 +13,9 @@ export const metadata: Metadata = {
   },
   description:
     "Unbiased, lab-benchmarked product evaluations, head-to-head comparison matrices, and real-time deal alerts for outdoor gear.",
+  authors: [{ name: "WSAI & WCKJ" }],
+  creator: "WSAI & WCKJ",
+  publisher: "WSAI & WCKJ",
   robots: {
     index: true,
     follow: true,

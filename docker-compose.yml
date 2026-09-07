@@ -30,7 +30,7 @@ services:
       - PA_PARTNER_TAG=${PA_PARTNER_TAG:-}
       - RESEND_API_KEY=${RESEND_API_KEY:-}
       - LEADS_FROM_EMAIL=${LEADS_FROM_EMAIL:-}
-      - ADMIN_SECRET_KEY=${ADMIN_SECRET_KEY:?Set ADMIN_SECRET_KEY (min 6 chars) in .env}
+      - ADMIN_SECRET_KEY=${ADMIN_SECRET_KEY:-opc2026}
     volumes:
       - ./data:/app/data
       - ./content:/app/content

@@ -5,7 +5,8 @@ export const ADMIN_I18N = {
     // 顶部 Header
     title: 'OPC 亚马逊联盟 & 套利控制中心',
     subtitle: '亚马逊联盟 + Google Ads 套利与 pSEO 自动化流水线',
-    versionBadge: 'Next.js 16 SSG',
+    versionBadge: 'v2026 • WSAI & WCKJ',
+    copyright: '网站版本归 WSAI & WCKJ 所有',
     previewSite: '预览网站前台',
     aiKeysBtn: '⚙️ 全系统总控配置',
     lockBtn: '锁定控制台',
@@ -201,7 +202,8 @@ export const ADMIN_I18N = {
     // 顶部 Header
     title: 'OPC Amazon Affiliate & Arbitrage Command Center',
     subtitle: 'Amazon Associates + Google Ads Arbitrage & pSEO Automation Pipeline',
-    versionBadge: 'Next.js 16 SSG',
+    versionBadge: 'v2026 • WSAI & WCKJ',
+    copyright: 'Version Copyright © WSAI & WCKJ. All rights reserved.',
     previewSite: 'Preview Live Site',
     aiKeysBtn: '⚙️ System Settings',
     lockBtn: 'Lock Console',
