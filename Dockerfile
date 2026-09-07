@@ -7,8 +7,14 @@ WORKDIR /app
 # 安装 libc6-compat 提升 Alpine 兼容性
 RUN apk add --no-cache libc6-compat
 
+# 支持自定义 npm 镜像源，默认使用国内高速 npmmirror 彻底杜绝 ECONNRESET 网络中断超时
+ARG NPM_REGISTRY=https://registry.npmmirror.com
 COPY package.json package-lock.json* ./
-RUN npm ci
+RUN npm config set registry ${NPM_REGISTRY} && \
+    npm config set fetch-retries 5 && \
+    npm config set fetch-retry-mintimeout 20000 && \
+    npm config set fetch-retry-maxtimeout 120000 && \
+    npm ci
 
 # ==========================================
 # 阶段 2：编译构建 (Builder)
