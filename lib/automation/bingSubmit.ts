@@ -5,7 +5,7 @@
  */
 import fs from 'fs';
 import path from 'path';
-import { PAGES_DIR, DATA_DIR, REPORTS_DIR, withLock, readJson } from './dataLayer';
+import { PAGES_DIR, DATA_DIR, REPORTS_DIR, withLock, readJson, tryWriteReport } from './dataLayer';
 import type { MatrixData } from './dataLayer';
 
 function collectUrls(siteUrl: string): string[] {
@@ -103,16 +103,20 @@ export async function runBingSubmit(apply = true): Promise<BingSubmitResult> {
     ];
     if (error) lines.push('', `## 错误`, '', error);
 
-    fs.mkdirSync(REPORTS_DIR, { recursive: true });
     const reportPath = path.join(REPORTS_DIR, 'bing_submission_report.md');
-    fs.writeFileSync(reportPath, lines.join('\n'), 'utf-8');
+    const writeResult = tryWriteReport(reportPath, lines.join('\n'));
 
     return {
       mode,
       submitted: mode === 'live' ? submitted : 0,
       quota,
-      error,
+      error: error || (writeResult.ok ? undefined : `报告写入失败: ${writeResult.error}`),
       reportPath: path.relative(process.cwd(), reportPath),
+      summary:
+        (mode === 'live'
+          ? `Bing 推送完成: ${submitted} URL 已提交`
+          : `Bing 推送预览: ${urls.length} URL 就绪 (配置 BING_API_KEY 后实盘)`) +
+        (writeResult.ok ? '' : ` [报告写入失败: ${writeResult.error}]`),
     };
   });
 }

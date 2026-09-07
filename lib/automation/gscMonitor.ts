@@ -10,7 +10,7 @@
  */
 import fs from 'fs';
 import path from 'path';
-import { PAGES_DIR, withLock, readJson } from './dataLayer';
+import { PAGES_DIR, withLock, readJson, tryWriteReport } from './dataLayer';
 
 const PRUNE_AFTER_DAYS = 90;
 const MERGE_AFTER_DAYS = 180;
@@ -117,13 +117,16 @@ export async function runGscMonitor(apply = false): Promise<PruneResult> {
         : ['- 无剪枝候选 — 全站页面健康']),
     ];
 
-    fs.mkdirSync(path.join(process.cwd(), 'reports'), { recursive: true });
-    fs.writeFileSync(
+    const writeResult = tryWriteReport(
       path.join(process.cwd(), 'reports', 'prune_log.md'),
-      logLines.join('\n'),
-      'utf-8'
+      logLines.join('\n')
     );
 
-    return { scanned: verdicts.length, pruneCandidates, mergeCandidates, applied };
+    const summary =
+      `GSC 审计完成: 扫描 ${verdicts.length} 页, PRUNE 候选 ${pruneCandidates.length}, MERGE 候选 ${mergeCandidates.length}` +
+      (apply ? `, 已剪枝 ${applied}` : ' (dry-run)') +
+      (writeResult.ok ? '' : ` [报告写入失败: ${writeResult.error}]`);
+
+    return { scanned: verdicts.length, pruneCandidates, mergeCandidates, applied, summary };
   });
 }

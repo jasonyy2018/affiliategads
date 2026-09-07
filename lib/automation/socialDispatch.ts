@@ -4,7 +4,7 @@
  */
 import fs from 'fs';
 import path from 'path';
-import { SYNDICATE_DIR, PAGES_DIR, REPORTS_DIR, withLock, loadGeoQuestions } from './dataLayer';
+import { SYNDICATE_DIR, PAGES_DIR, REPORTS_DIR, withLock, loadGeoQuestions, tryWriteReport } from './dataLayer';
 
 function listFiles(dir: string, ext: string): string[] {
   try {
@@ -91,9 +91,8 @@ export async function runSocialDispatch(apply = true): Promise<SocialDispatchRes
     ];
     if (error) lines.push('', '## 错误', '', error);
 
-    fs.mkdirSync(REPORTS_DIR, { recursive: true });
     const reportPath = path.join(REPORTS_DIR, 'social_dispatch_report.md');
-    fs.writeFileSync(reportPath, lines.join('\n'), 'utf-8');
+    const writeResult = tryWriteReport(reportPath, lines.join('\n'));
 
     return {
       mode,
@@ -101,9 +100,11 @@ export async function runSocialDispatch(apply = true): Promise<SocialDispatchRes
       webhookConfigured: webhook.startsWith('http'),
       reportPath: path.relative(process.cwd(), reportPath),
       error,
-      summary: mode === 'live'
-        ? `广播完成: ${payloads.length} 条卡片已推送 Webhook`
-        : `广播预览: ${payloads.length} 条卡片就绪 (配置 SOCIAL_WEBHOOK_URL 后实盘推送)`,
+      summary:
+        (mode === 'live'
+          ? `广播完成: ${payloads.length} 条卡片已推送 Webhook`
+          : `广播预览: ${payloads.length} 条卡片就绪 (配置 SOCIAL_WEBHOOK_URL 后实盘推送)`) +
+        (writeResult.ok ? '' : ` [报告写入失败: ${writeResult.error}]`),
     };
   });
 }

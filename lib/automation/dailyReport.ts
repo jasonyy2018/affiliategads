@@ -13,6 +13,7 @@ import {
   countFiles,
   SYNDICATE_DIR,
   withLock,
+  tryWriteReport,
 } from './dataLayer';
 
 function readReportSafe(filename: string): string {
@@ -114,12 +115,13 @@ export async function runDailyReport(): Promise<{ summary: string; reportPath: s
       ''
     );
 
-    fs.mkdirSync(REPORTS_DIR, { recursive: true });
     const reportPath = path.join(REPORTS_DIR, 'daily_report.md');
-    fs.writeFileSync(reportPath, lines.join('\n'), 'utf-8');
+    const writeResult = tryWriteReport(reportPath, lines.join('\n'));
 
     return {
-      summary: `日报生成完成: ${pageCount} pSEO 页 / ${products.length} SKU / 证据链 ${syndicateTotal} 篇`,
+      summary:
+        `日报生成完成: ${pageCount} pSEO 页 / ${products.length} SKU / 证据链 ${syndicateTotal} 篇` +
+        (writeResult.ok ? '' : ` [报告写入失败: ${writeResult.error}]`),
       reportPath: path.relative(process.cwd(), reportPath),
     };
   });

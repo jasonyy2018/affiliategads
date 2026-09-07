@@ -154,11 +154,13 @@ export async function runEpcTracker(): Promise<{ summary: string; reportPath: st
     }
 
     const content = lines.join('\n');
-    const reportPath = writeReport('epc_ranking.md', content);
+    const report = writeReport('epc_ranking.md', content);
 
     return {
-      summary: `EPC 对账完成: ${performances.length} 个 Tracking ID, 加权 EPC $${weightedEpc.toFixed(3)}, 总佣金 $${totalCommission.toFixed(2)}`,
-      reportPath: path.relative(process.cwd(), reportPath),
+      summary:
+        `EPC 对账完成: ${performances.length} 个 Tracking ID, 加权 EPC $${weightedEpc.toFixed(3)}, 总佣金 $${totalCommission.toFixed(2)}` +
+        (report.ok ? '' : ` [报告写入失败: ${report.error} — 详情见服务端日志]`),
+      reportPath: path.relative(process.cwd(), report.filePath),
       performances,
     };
   });

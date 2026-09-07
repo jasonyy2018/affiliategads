@@ -146,11 +146,13 @@ export async function runGeoOptimizer(): Promise<{
     }
 
     const content = lines.join('\n');
-    const reportPath = writeReport('geo_audit.md', content);
+    const report = writeReport('geo_audit.md', content);
 
     return {
-      summary: `GEO 扫描完成: ${scores.length} 页, 平均分 ${avg.toFixed(1)}, 需优化 ${needsWork.length} 页`,
-      reportPath: path.relative(process.cwd(), reportPath),
+      summary:
+        `GEO 扫描完成: ${scores.length} 页, 平均分 ${avg.toFixed(1)}, 需优化 ${needsWork.length} 页` +
+        (report.ok ? '' : ` [报告写入失败: ${report.error}]`),
+      reportPath: path.relative(process.cwd(), report.filePath),
       pages: scores,
     };
   });

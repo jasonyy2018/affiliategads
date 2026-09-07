@@ -108,11 +108,13 @@ export async function runGeminiAudit(): Promise<{
     }
 
     const content = lines.join('\n');
-    const reportPath = writeReport('gemini_citation_audit.md', content);
+    const report = writeReport('gemini_citation_audit.md', content);
 
     return {
-      summary: `Gemini 审计完成: ${audits.length} 疑问, 平均就绪度 ${avg.toFixed(1)}, 证据链资产 ${totalSyndicate}`,
-      reportPath: path.relative(process.cwd(), reportPath),
+      summary:
+        `Gemini 审计完成: ${audits.length} 疑问, 平均就绪度 ${avg.toFixed(1)}, 证据链资产 ${totalSyndicate}` +
+        (report.ok ? '' : ` [报告写入失败: ${report.error}]`),
+      reportPath: path.relative(process.cwd(), report.filePath),
       audits,
     };
   });

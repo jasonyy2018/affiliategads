@@ -8,6 +8,7 @@ import {
   loadMatrix,
   REPORTS_DIR,
   withLock,
+  tryWriteReport,
 } from './dataLayer';
 import { isSerpApiConfigured, queryLiveSerp } from './serpApi';
 import fs from 'fs';
@@ -139,12 +140,13 @@ export async function runSerpTracker(siteUrl?: string): Promise<{
     );
 
     const content = lines.join('\n');
-    fs.mkdirSync(REPORTS_DIR, { recursive: true });
     const reportPath = path.join(REPORTS_DIR, 'rank_history.md');
-    fs.writeFileSync(reportPath, content, 'utf-8');
+    const writeResult = tryWriteReport(reportPath, content);
 
     return {
-      summary: `SERP 快照完成 (${dataMode === 'live' ? 'SerpApi 实盘' : '启发式基准'}): ${keywords.length} 词 × 2 引擎, Bing 首页 ${bingTop10}/${keywords.length}`,
+      summary:
+        `SERP 快照完成 (${dataMode === 'live' ? 'SerpApi 实盘' : '启发式基准'}): ${keywords.length} 词 × 2 引擎, Bing 首页 ${bingTop10}/${keywords.length}` +
+        (writeResult.ok ? '' : ` [报告写入失败: ${writeResult.error}]`),
       reportPath: path.relative(process.cwd(), reportPath),
       results,
     };

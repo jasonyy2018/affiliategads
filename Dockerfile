@@ -50,13 +50,18 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/data ./data
 COPY --from=builder --chown=nextjs:nodejs /app/content ./content
 
-# 确保 leads 等运行时写入不被权限阻断，并确保后台设置保存能读写 .env.local
-RUN touch /app/.env.local && \
-    chown -R nextjs:nodejs /app/data /app/content /app/.env.local && \
+# 确保运行时目录与 .env.local 存在（volume 挂载点 / 后台设置读写）
+RUN mkdir -p /app/reports && \
+    touch /app/.env.local && \
     chmod 664 /app/.env.local
+
+# Root 入口：启动时修正 bind-mount 卷属主（宿主目录 uid 与容器 uid 不一致
+# 是自动化任务 EACCES 的根因），然后降权到 nextjs 运行。
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 USER nextjs
 
 EXPOSE 3000
 
-CMD ["node", "server.js"]
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]

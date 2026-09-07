@@ -28,6 +28,21 @@ export function writeJson(filePath: string, data: unknown): void {
   fs.renameSync(tmp, filePath);
 }
 
+/**
+ * 报告写入：EACCES 等权限问题只告警不抛出——
+ * 报告是任务的副产物，写失败不应炸掉整条流水线（返回 false 由调用方降级）。
+ */
+export function tryWriteReport(filePath: string, content: string): { ok: boolean; error?: string } {
+  try {
+    fs.mkdirSync(path.dirname(filePath), { recursive: true });
+    fs.writeFileSync(filePath, content, 'utf-8');
+    return { ok: true };
+  } catch (e: any) {
+    console.warn(`[report] Notice: could not write ${filePath} (${e.code || e.message}). Report content follows in task summary.`);
+    return { ok: false, error: e.code || e.message };
+  }
+}
+
 // ---------- 进程内互斥锁 ----------
 const locks = new Map<string, Promise<unknown>>();
 
@@ -129,11 +144,18 @@ export function loadTargetKeywords(): string[] {
 
 // ---------- 报告 ----------
 
-export function writeReport(filename: string, content: string): string {
-  fs.mkdirSync(REPORTS_DIR, { recursive: true });
+/**
+ * 写报告文件。权限不足 (EACCES) 时只告警不抛出，返回带 ok/error 的结果，
+ * 保证流水线其余步骤继续执行。
+ */
+export function writeReport(filename: string, content: string): { filePath: string; ok: boolean; error?: string } {
   const filePath = path.join(REPORTS_DIR, filename);
-  fs.writeFileSync(filePath, content, 'utf-8');
-  return filePath;
+  const result = tryWriteReport(filePath, content);
+  if (!result.ok) {
+    // 告警详情包含报告全文前 500 字符，确保信息不丢
+    console.warn(`[report] ${filename} write failed (${result.error}). Preview:\n${content.slice(0, 500)}`);
+  }
+  return { filePath, ok: result.ok, error: result.error };
 }
 
 export function readReport(filename: string): string {
