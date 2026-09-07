@@ -24,6 +24,7 @@ import ProductImage from '@/components/ProductImage';
 import AiDirectAnswer from '@/components/AiDirectAnswer';
 import StickyFloatingBuyBar from '@/components/StickyFloatingBuyBar';
 import ProductMatcherQuiz from '@/components/ProductMatcherQuiz';
+import RelatedGuides from '@/components/RelatedGuides';
 
 interface MatrixData {
   categories: string[];
@@ -499,62 +500,8 @@ export default async function BestComparisonPage({ params }: Props) {
           </div>
         </div>
 
-        {/* 5.5 Hub-and-Spoke 内链结构 */}
-        <div className="my-12 p-6 bg-slate-50 border border-slate-200 rounded-2xl space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <Layers className="w-4 h-4 text-blue-600" />
-              <span>Explore More {displayCategory} Comparisons (Hub Directory)</span>
-            </h3>
-            <Link href={hubUrl} className="text-xs font-bold text-blue-600 hover:underline flex items-center gap-1">
-              <span>View All {displayCategory} Hub</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-            {/* 从矩阵动态生成本品类的其他对比页内链（只链真实存在的快照） */}
-            {(function buildSiblingLinks() {
-              const pagesDir = path.join(process.cwd(), 'content', 'pages');
-              let slugs: string[] = [];
-              try {
-                if (fs.existsSync(pagesDir)) {
-                  const catPrefix = `best-${displayCategory.toLowerCase().replace(/\s+/g, '-')}-for-`;
-                  slugs = fs
-                    .readdirSync(pagesDir)
-                    .filter((f) => f.endsWith('.json'))
-                    .map((f) => f.replace(/\.json$/, ''))
-                    .filter((s) => s.startsWith(catPrefix) && s !== slug)
-                    .slice(0, 3);
-                }
-              } catch {}
-
-              if (slugs.length === 0) {
-                return (
-                  <Link
-                    href={hubUrl}
-                    className="p-3 bg-white border border-slate-200 rounded-xl hover:border-amber-400 font-medium text-slate-800 transition"
-                  >
-                    👉 Browse the full {displayCategory} Hub
-                  </Link>
-                );
-              }
-
-              return slugs.map((s) => (
-                <Link
-                  key={s}
-                  href={`/best/${s}`}
-                  className="p-3 bg-white border border-slate-200 rounded-xl hover:border-amber-400 font-medium text-slate-800 transition"
-                >
-                  👉 {s
-                    .replace(`best-${displayCategory.toLowerCase().replace(/\s+/g, '-')}-for-`, '')
-                    .replace(/-/g, ' ')
-                    .replace(/\b\w/g, (c) => c.toUpperCase())}
-                </Link>
-              ));
-            })()}
-          </div>
-        </div>
+        {/* 5.5 Hub-and-Spoke 内链结构（同品类互链网络，构建期静态解析） */}
+        <RelatedGuides category={displayCategory.toLowerCase()} currentSlug={slug} limit={6} />
 
         {/* 亚马逊 30 天无理由退换信任横幅 */}
         <div className="my-8 p-5 bg-gradient-to-r from-slate-900 to-slate-950 border border-slate-800 rounded-2xl text-white flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">

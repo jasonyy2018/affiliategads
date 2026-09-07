@@ -50,8 +50,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/data ./data
 COPY --from=builder --chown=nextjs:nodejs /app/content ./content
 
-# 确保 leads 等运行时写入不被权限阻断
-RUN chown -R nextjs:nodejs /app/data /app/content
+# 确保 leads 等运行时写入不被权限阻断，并确保后台设置保存能读写 .env.local
+RUN touch /app/.env.local && \
+    chown -R nextjs:nodejs /app/data /app/content /app/.env.local && \
+    chmod 664 /app/.env.local
 
 USER nextjs
 

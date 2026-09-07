@@ -7,49 +7,59 @@ const ENV_LOCAL_PATH = path.join(process.cwd(), '.env.local');
 
 function parseEnvFile(filePath: string): Record<string, string> {
   const result: Record<string, string> = {};
-  if (!fs.existsSync(filePath)) return result;
-  const content = fs.readFileSync(filePath, 'utf-8');
-  const lines = content.split('\n');
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith('#') || !trimmed.includes('=')) continue;
-    const [key, ...rest] = trimmed.split('=');
-    result[key.trim()] = rest.join('=').trim().replace(/^["']|["']$/g, '');
+  try {
+    if (!fs.existsSync(filePath)) return result;
+    const content = fs.readFileSync(filePath, 'utf-8');
+    const lines = content.split('\n');
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#') || !trimmed.includes('=')) continue;
+      const [key, ...rest] = trimmed.split('=');
+      result[key.trim()] = rest.join('=').trim().replace(/^["']|["']$/g, '');
+    }
+  } catch (err: any) {
+    console.warn(`[Settings] Notice: could not read ${filePath} (${err.message}). Falling back to process.env.`);
   }
   return result;
 }
 
 /**
  * 原地更新 .env.local：逐行替换已存在的 key，新 key 追加到末尾。
- * 保留原有注释与行序，不再整文件重写。
+ * 保留原有注释与行序，捕获只读容器或权限不足 (EACCES)，避免直接崩溃。
  */
-function updateEnvFile(filePath: string, updates: Record<string, string>): void {
-  let content = '';
-  if (fs.existsSync(filePath)) {
-    content = fs.readFileSync(filePath, 'utf-8');
-  } else {
-    content = '# ==========================================\n# Affiliate Site Configurations\n# ==========================================\n';
-  }
-
-  const pending = { ...updates };
-  const lines = content.split('\n').map((line) => {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith('#') || !trimmed.includes('=')) return line;
-    const key = trimmed.split('=')[0].trim();
-    if (key in pending) {
-      const value = pending[key];
-      delete pending[key];
-      return `${key}=${value}`;
+function updateEnvFile(filePath: string, updates: Record<string, string>): { written: boolean; error?: string } {
+  try {
+    let content = '';
+    if (fs.existsSync(filePath)) {
+      content = fs.readFileSync(filePath, 'utf-8');
+    } else {
+      content = '# ==========================================\n# Affiliate Site Configurations\n# ==========================================\n';
     }
-    return line;
-  });
 
-  // 追加新 key
-  for (const [k, v] of Object.entries(pending)) {
-    lines.push(`${k}=${v}`);
+    const pending = { ...updates };
+    const lines = content.split('\n').map((line) => {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#') || !trimmed.includes('=')) return line;
+      const key = trimmed.split('=')[0].trim();
+      if (key in pending) {
+        const value = pending[key];
+        delete pending[key];
+        return `${key}=${value}`;
+      }
+      return line;
+    });
+
+    // 追加新 key
+    for (const [k, v] of Object.entries(pending)) {
+      lines.push(`${k}=${v}`);
+    }
+
+    fs.writeFileSync(filePath, lines.join('\n'), 'utf-8');
+    return { written: true };
+  } catch (err: any) {
+    console.warn(`[Settings] Notice: could not write to ${filePath} (${err.code || err.message}). Runtime memory has been updated.`);
+    return { written: false, error: err.message };
   }
-
-  fs.writeFileSync(filePath, lines.join('\n'), 'utf-8');
 }
 
 function maskKey(key: string | undefined): string {
@@ -217,11 +227,15 @@ export async function POST(req: Request) {
       process.env.AI_MODEL_CHOICE = defaultModel;
     }
 
-    updateEnvFile(ENV_LOCAL_PATH, updates);
+    const writeResult = updateEnvFile(ENV_LOCAL_PATH, updates);
 
     return NextResponse.json({
       success: true,
-      message: 'Settings and API keys updated successfully in .env.local.',
+      persisted: writeResult.written,
+      message: writeResult.written
+        ? 'Settings and API keys updated successfully in .env.local.'
+        : 'Settings updated in runtime memory! Notice: could not persist to /app/.env.local due to server file permissions (EACCES). Run "chmod 666 /app/.env.local" on server to persist permanently across restarts.',
+      warning: writeResult.written ? undefined : writeResult.error,
     });
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });

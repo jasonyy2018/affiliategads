@@ -22,6 +22,14 @@ export const metadata: Metadata = {
     type: "website",
     url: siteUrl,
   },
+  verification: {
+    other: {
+      "msvalidate.01": "334AD38D1048CA468EE60121B2617001",
+    },
+  },
+  other: {
+    "msvalidate.01": "334AD38D1048CA468EE60121B2617001",
+  },
 };
 
 export default function RootLayout({
@@ -32,6 +40,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <head>
+        <meta name="msvalidate.01" content="334AD38D1048CA468EE60121B2617001" />
         <link rel="preconnect" href="https://m.media-amazon.com" />
         <link rel="preconnect" href="https://images-na.ssl-images-amazon.com" />
       </head>

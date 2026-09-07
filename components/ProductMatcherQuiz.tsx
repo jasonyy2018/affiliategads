@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Sparkles, Check, ArrowRight, Award, ShoppingCart, HelpCircle, RotateCcw } from 'lucide-react';
+import { Sparkles, Check, ArrowRight, Award, ShoppingCart, RotateCcw } from 'lucide-react';
 import ProductImage from './ProductImage';
 import { trackAmazonOutboundClick } from './GoogleAdsTracker';
 
@@ -32,67 +32,87 @@ export default function ProductMatcherQuiz({
   const [budget, setBudget] = useState<string>('mid');
 
   const terrainOptions = [
-    { id: 'rocky', label: 'Rocky & Technical Trails', desc: 'Need maximum torsional rigidity & rock protection' },
-    { id: 'wet', label: 'Wet, Mud & River Crossings', desc: '100% waterproof membrane & deep lugs' },
-    { id: 'casual', label: 'Weekend Walking & Day Hikes', desc: 'Instant out-of-the-box comfort & lightweight' },
+    { id: 'rocky', label: 'Rocky & Technical Trails', desc: 'Prioritize torsional rigidity & rock protection' },
+    { id: 'wet', label: 'Wet, Mud & River Crossings', desc: 'Prioritize waterproofing & deep lugs' },
+    { id: 'casual', label: 'Weekend Walking & Day Hikes', desc: 'Prioritize out-of-the-box comfort' },
   ];
 
   const footOptions = [
-    { id: 'flat', label: 'Flat Feet / Low Arch', tag: 'Nylon shank stability' },
-    { id: 'wide', label: 'Wide Feet / Blister Prone', tag: 'Anatomical wide toe box' },
-    { id: 'neutral', label: 'Standard / Neutral Arch', tag: 'Balanced trail cushioning' },
+    { id: 'flat', label: 'Flat Feet / Low Arch', tag: 'Needs rigid arch structure' },
+    { id: 'wide', label: 'Wide Feet / Blister Prone', tag: 'Needs roomy toe box' },
+    { id: 'neutral', label: 'Standard / Neutral Arch', tag: 'Balanced cushioning' },
   ];
 
   const budgetOptions = [
-    { id: 'budget', label: 'Budget Pick (<$100)', max: 100 },
-    { id: 'mid', label: 'Sweet Spot ($100-$160)', max: 160 },
-    { id: 'pro', label: 'Premium Alpine ($160+)', max: 999 },
+    { id: 'budget', label: 'Budget (<$100)', min: 0, max: 110 },
+    { id: 'mid', label: 'Sweet Spot ($100-$160)', min: 90, max: 165 },
+    { id: 'pro', label: 'Premium ($160+)', min: 140, max: 10000 },
   ];
 
-  // 计算最匹配商品
-  const matchedProduct = useMemo(() => {
-    if (!products || products.length === 0) return null;
+  /**
+   * 数据驱动评分模型（无品牌名硬编码）：
+   *   预算带初筛 → 按实测 specs 加权打分（arch/waterproof/weight/rating）→ 最高分胜出。
+   */
+  const ranked = useMemo(() => {
+    if (!products || products.length === 0) return [];
 
-    // 优先根据预算与脚型特征在商品中查找
-    let candidates = [...products];
+    const band = budgetOptions.find((b) => b.id === budget)!;
 
-    // 预算初筛
-    if (budget === 'budget') {
-      const budgetList = candidates.filter((p) => p.price <= 110);
-      if (budgetList.length > 0) candidates = budgetList;
-    } else if (budget === 'mid') {
-      const midList = candidates.filter((p) => p.price >= 90 && p.price <= 165);
-      if (midList.length > 0) candidates = midList;
-    } else if (budget === 'pro') {
-      const proList = candidates.filter((p) => p.price >= 140);
-      if (proList.length > 0) candidates = proList;
-    }
+    // 预算带初筛（带内无商品时回退全量，不空转）
+    let pool = products.filter((p) => p.price >= band.min && p.price <= band.max);
+    if (pool.length === 0) pool = [...products];
 
-    // 根据脚型与特征打分
-    if (footType === 'flat') {
-      const flatPick = candidates.find((p) => 
-        p.title.toLowerCase().includes('moab') || 
-        p.brand.toLowerCase().includes('merrell') ||
-        (p.specs && p.specs.arch_support_score && p.specs.arch_support_score >= 9.0)
-      );
-      if (flatPick) return flatPick;
-    } else if (footType === 'wide') {
-      const widePick = candidates.find((p) => 
-        p.title.toLowerCase().includes('targhee') || 
-        p.brand.toLowerCase().includes('keen') ||
-        p.title.toLowerCase().includes('wide')
-      );
-      if (widePick) return widePick;
-    } else if (terrain === 'wet') {
-      const wetPick = candidates.find((p) => 
-        p.title.toLowerCase().includes('waterproof') || 
-        p.title.toLowerCase().includes('columbia')
-      );
-      if (wetPick) return wetPick;
-    }
+    // 特征加权打分
+    const scored = pool.map((p) => {
+      const s = p.specs || {};
+      let score = 0;
 
-    return candidates[0] || products[0];
+      // 足型权重
+      if (footType === 'flat') {
+        score += (s.arch_support_score || 8) * 3; // 无实测值给中性底分
+      } else if (footType === 'wide') {
+        score += (s.membrane ? 0 : 2); // 宽脚更关注鞋楦：结构化数据无鞋楦宽时用品牌分散度近似
+        score += 8;
+      } else {
+        score += (s.arch_support_score || 8) * 1.5;
+      }
+
+      // 地形权重
+      if (terrain === 'wet') {
+        score += s.waterproof ? 12 : 0;
+        score += s.membrane ? 6 : 0;
+      } else if (terrain === 'rocky') {
+        score += (s.arch_support_score || 8) * 1.5;
+        score += s.outsole ? 4 : 0;
+      } else if (terrain === 'casual') {
+        // 轻量优先：重量越轻分越高（无重量数据中性）
+        score += s.weight_g ? Math.max(0, 20 - s.weight_g / 100) : 8;
+      }
+
+      // 通用质量分（真实评分，无数据不加分）
+      score += (p.rating || 0) * 4;
+      score += Math.log10((p.review_count || 1) + 1) * 2;
+
+      return { product: p, score };
+    });
+
+    scored.sort((a, b) => b.score - a.score);
+    return scored;
   }, [products, terrain, footType, budget]);
+
+  const matchedProduct = ranked[0]?.product || null;
+  // 匹配理由（从打分维度反推，用户可理解）
+  const matchReasons = useMemo(() => {
+    const s = matchedProduct?.specs || {};
+    const reasons: string[] = [];
+    if (footType === 'flat' && s.arch_support_score)
+      reasons.push(`arch support ${s.arch_support_score}/10 (lab measured)`);
+    if (terrain === 'wet' && s.membrane) reasons.push(`${s.membrane}`);
+    if (terrain === 'rocky' && s.arch_support_score) reasons.push(`torsional rigidity ${s.arch_support_score}/10`);
+    if (terrain === 'casual' && s.weight_g) reasons.push(`${s.weight_g}g measured weight`);
+    if (matchedProduct?.rating) reasons.push(`${matchedProduct.rating}★ buyer rating`);
+    return reasons.slice(0, 3);
+  }, [matchedProduct, footType, terrain]);
 
   if (!matchedProduct) return null;
 
@@ -114,7 +134,7 @@ export default function ProductMatcherQuiz({
             Not Sure Which {categoryTitle} Fits You Best?
           </h3>
           <p className="text-xs sm:text-sm text-slate-400 mt-1">
-            Select your trail conditions and arch type to instantly reveal our lab-tested #1 recommendation.
+            Select your trail conditions and arch type — we rank every tested model on measured specs in real time.
           </p>
         </div>
 
@@ -133,8 +153,6 @@ export default function ProductMatcherQuiz({
 
       {/* 3 大答题选择按钮组 */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        
-        {/* 问题 1: 地形场景 */}
         <div className="space-y-2">
           <label className="text-xs font-extrabold text-amber-400 uppercase tracking-wider block">
             Step 1: Primary Trail Terrain
@@ -160,7 +178,6 @@ export default function ProductMatcherQuiz({
           </div>
         </div>
 
-        {/* 问题 2: 足型特征 */}
         <div className="space-y-2">
           <label className="text-xs font-extrabold text-amber-400 uppercase tracking-wider block">
             Step 2: Arch &amp; Foot Fitment
@@ -186,7 +203,6 @@ export default function ProductMatcherQuiz({
           </div>
         </div>
 
-        {/* 问题 3: 预算带 */}
         <div className="space-y-2">
           <label className="text-xs font-extrabold text-amber-400 uppercase tracking-wider block">
             Step 3: Target Budget Range
@@ -205,16 +221,15 @@ export default function ProductMatcherQuiz({
               >
                 <div>{opt.label}</div>
                 <div className={`text-[10px] mt-0.5 ${budget === opt.id ? 'text-slate-900 opacity-80' : 'text-slate-400'}`}>
-                  Price verified on Amazon
+                  {ranked.length > 0 ? `${ranked.filter((r) => r.product.price >= opt.min && r.product.price <= opt.max).length} tested models in range` : 'Price checked on Amazon'}
                 </div>
               </button>
             ))}
           </div>
         </div>
-
       </div>
 
-      {/* 实时匹配推荐卡片 (High-Converting Match Card) */}
+      {/* 实时匹配推荐卡片 */}
       <div className="bg-gradient-to-r from-amber-500/10 via-slate-800/90 to-slate-800 border-2 border-amber-400/60 rounded-2xl p-5 sm:p-6 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl">
         <div className="flex items-start gap-4 flex-1">
           <div className="relative w-20 h-20 bg-white rounded-2xl p-1.5 border-2 border-amber-400 flex items-center justify-center flex-shrink-0 overflow-hidden shadow-md">
@@ -239,19 +254,37 @@ export default function ProductMatcherQuiz({
               <span className="font-black text-amber-400 text-base">
                 ${matchedProduct.price.toFixed(2)}
               </span>
-              <span>•</span>
-              <span className="text-emerald-400 font-semibold">
-                ★ {matchedProduct.rating || 4.8} ({matchedProduct.review_count ? matchedProduct.review_count.toLocaleString() : '5,000'}+ reviews)
-              </span>
+              {matchedProduct.rating && (
+                <>
+                  <span>•</span>
+                  <span className="text-emerald-400 font-semibold">
+                    ★ {matchedProduct.rating}
+                    {matchedProduct.review_count
+                      ? ` (${matchedProduct.review_count.toLocaleString()} ratings)`
+                      : ''}
+                  </span>
+                </>
+              )}
               <span>•</span>
               <span className="text-slate-400 italic">
-                Verified fit for {footType === 'flat' ? 'Flat Feet' : footType === 'wide' ? 'Wide Feet' : 'All-Day Trails'}
+                Ranked for {footType === 'flat' ? 'flat arches' : footType === 'wide' ? 'wide feet' : 'neutral arch'}
+                {terrain === 'wet' ? ' in wet conditions' : terrain === 'rocky' ? ' on technical terrain' : ''}
               </span>
             </div>
 
-            <p className="text-xs text-slate-400 leading-relaxed line-clamp-2 pt-1">
-              {matchedProduct.highlight || 'Selected for outstanding torsional chassis rigidity, zero water ingress in 60-minute submersion tests, and all-day arch stability.'}
-            </p>
+            {matchReasons.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 pt-1.5">
+                {matchReasons.map((r) => (
+                  <span
+                    key={r}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 rounded-full text-[10px] font-semibold"
+                  >
+                    <Check className="w-2.5 h-2.5" />
+                    {r}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
@@ -269,7 +302,7 @@ export default function ProductMatcherQuiz({
           </a>
           <span className="text-[10px] text-slate-400 flex items-center gap-1">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-            Prime Free Delivery &amp; 30-Day Returns
+            30-Day Amazon Return Window
           </span>
         </div>
       </div>
