@@ -3,7 +3,8 @@ import "./globals.css";
 import { GoogleAdsTracker } from "@/components/GoogleAdsTracker";
 import { PostHogProvider } from "@/components/PostHogProvider";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://aads.togomol.com";
+const gaId = process.env.NEXT_PUBLIC_GA_CONVERSION_ID || "AW-17885747857";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -43,6 +44,18 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <head>
+        {/* Google tag (gtag.js) - 直接原生注入 <head> 第一行，满足 Google Ads 探测爬虫严格检测 */}
+        <script async src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`} />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${gaId}');
+            `,
+          }}
+        />
         <meta name="msvalidate.01" content="334AD38D1048CA468EE60121B2617001" />
         <link rel="preconnect" href="https://m.media-amazon.com" />
         <link rel="preconnect" href="https://images-na.ssl-images-amazon.com" />

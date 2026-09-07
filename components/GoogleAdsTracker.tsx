@@ -1,32 +1,11 @@
 'use client';
 
-import Script from 'next/script';
-
+/**
+ * Google Ads 全局代码已直接原生注入 app/layout.tsx 的 <head> 首行，
+ * 本组件保留作为客户端微转化事件调度中心。
+ */
 export function GoogleAdsTracker() {
-  const conversionId = process.env.NEXT_PUBLIC_GA_CONVERSION_ID;
-
-  if (!conversionId) return null;
-
-  return (
-    <>
-      <Script
-        strategy="afterInteractive"
-        src={`https://www.googletagmanager.com/gtag/js?id=${conversionId}`}
-      />
-      <Script
-        id="google-ads-init"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{
-          __html: `
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${conversionId}');
-          `,
-        }}
-      />
-    </>
-  );
+  return null;
 }
 
 /**
