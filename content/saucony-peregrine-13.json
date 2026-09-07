@@ -6,8 +6,8 @@
   "headline": "Saucony Men's Peregrine 13 Trail Running Shoe: Comprehensive Hands-On Review",
   "subheadline": "We tested real-world performance, durability, and ergonomics. Here is our unbiased verdict.",
   "badge": "#1 TOP RATED 2026",
-  "rating": 4.8,
-  "rating_count": 12500,
+  "rating": 4.6,
+  "rating_count": 2900,
   "quick_verdict": "The Saucony Men's Peregrine 13 is an outstanding trail running shoe that delivers remarkable agility at just 520 grams, paired with a lab-verified 60% faster mud-shedding rate that leaves flat-lug competitors in the dust. Its 5mm aggressive chevron lugs on PWRTRAC rubber provide phenomenal grip on slick mud, wet roots, and loose terrain, while the PWRRUN foam cushioning system keeps your legs fresh over long miles. If you prioritize speed, traction, and breathability over waterproofing, this is a top-tier pick that earns our strong recommendation.",
   "pros": [
     "Featherlight 520g construction delivers sprint-like agility on technical singletrack",
@@ -148,6 +148,7 @@
     "price": 99.95,
     "commission_rate": 0.045,
     "image_url": "https://images.unsplash.com/photo-1587563871167-1ee9c731aefb?auto=format&fit=crop&w=800&q=80",
-    "asin": "B0B88PGL2Z"
+    "asin": "B0B88PGL2Z",
+    "rating": 4.6
   }
 }

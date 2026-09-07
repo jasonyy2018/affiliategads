@@ -7,7 +7,7 @@
   "subheadline": "We tested real-world performance, durability, and ergonomics. Here is our unbiased verdict.",
   "badge": "#1 TOP RATED 2026",
   "rating": 4.8,
-  "rating_count": 12500,
+  "rating_count": 1450,
   "quick_verdict": "The Mystery Ranch Scree 32 is a top-tier technical daypack that excels on demanding terrain, thanks to its patented 3-ZIP access system and adjustable Futura Yoke suspension. At 1,300g with a 32-liter capacity, it delivers professional-grade durability and comfort for serious hikers and alpinists who need reliable gear in the backcountry.",
   "pros": [
     "Patented 3-ZIP design provides instant duffel-style access — no unpacking required on technical routes",
@@ -149,9 +149,10 @@
   "product_info": {
     "title": "Mystery Ranch Scree 32 Technical Daypack",
     "brand": "Mystery Ranch",
-    "price": 229.0,
+    "price": 229,
     "commission_rate": 0.045,
     "image_url": "https://images.unsplash.com/photo-1577733966973-d680bffd2e80?auto=format&fit=crop&w=800&q=80",
-    "asin": "B07NW2N38C"
+    "asin": "B07NW2N38C",
+    "rating": 4.8
   }
 }

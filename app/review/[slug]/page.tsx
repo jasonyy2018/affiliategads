@@ -367,6 +367,7 @@ export default async function ReviewPage({ params }: Props) {
               <ProductImage
                 src={productImage}
                 alt={productTitle}
+                priority
                 className="max-h-72 w-auto object-contain hover:scale-105 transition duration-300"
               />
             </div>

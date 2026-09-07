@@ -126,6 +126,7 @@
     "price": 159.95,
     "commission_rate": 0.045,
     "image_url": "https://images.unsplash.com/photo-1544450980-7538b042ef9d?auto=format&fit=crop&w=800&q=80",
-    "asin": "B08VJ5G3MW"
+    "asin": "B08VJ5G3MW",
+    "rating": 4.6
   }
 }

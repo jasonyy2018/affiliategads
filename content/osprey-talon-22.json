@@ -7,7 +7,7 @@
   "subheadline": "We tested real-world performance, durability, and ergonomics. Here is our unbiased verdict.",
   "badge": "#1 TOP RATED 2026",
   "rating": 4.8,
-  "rating_count": 12500,
+  "rating_count": 6120,
   "quick_verdict": "The Osprey Talon 22 is an exceptional day hiking pack that delivers outstanding load management through its innovative AirScape backpanel and seamless hipbelt design. With 65% of pack weight transferred to your hips in lab testing, it eliminates shoulder fatigue on long trails while maintaining a lightweight 870g profile. Ideal for hikers prioritizing comfort and breathability over all-weather waterproofing.",
   "pros": [
     "Lab-tested 65% load transfer to pelvic girdle vs. trapezius muscles reduces shoulder fatigue significantly",
@@ -144,6 +144,7 @@
     "price": 159.95,
     "commission_rate": 0.045,
     "image_url": "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80",
-    "asin": "B08LNW1M37"
+    "asin": "B08LNW1M37",
+    "rating": 4.8
   }
 }

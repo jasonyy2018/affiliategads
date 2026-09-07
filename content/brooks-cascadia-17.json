@@ -6,8 +6,8 @@
   "headline": "Brooks Men's Cascadia 17 Trail Running Shoe: Comprehensive Hands-On Review",
   "subheadline": "We tested real-world performance, durability, and ergonomics. Here is our unbiased verdict.",
   "badge": "#1 TOP RATED 2026",
-  "rating": 4.8,
-  "rating_count": 12500,
+  "rating": 4.5,
+  "rating_count": 3400,
   "quick_verdict": "The Brooks Cascadia 17 is a highly capable and durable trail runner that excels in stability and protection. With its innovative Trail Adapt System plate delivering 28% less lateral roll and a protective yet responsive rock plate, it is an excellent choice for hikers and trail runners seeking confidence on technical terrain. At $139.95, it offers strong value for its robust construction and reliable performance.",
   "pros": [
     "Significant 28% reduction in lateral roll compared to traditional unplated trail shoes due to the integrated Trail Adapt System plate.",
@@ -134,6 +134,7 @@
     "price": 139.95,
     "commission_rate": 0.045,
     "image_url": "https://images.unsplash.com/photo-1560769629-975ec94e6a86?auto=format&fit=crop&w=800&q=80",
-    "asin": "B0BLT56S6M"
+    "asin": "B0BLT56S6M",
+    "rating": 4.5
   }
 }

@@ -122,6 +122,7 @@
     "price": 139,
     "commission_rate": 0.045,
     "image_url": "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=800&q=80",
-    "asin": "B07YS6FJ7N"
+    "asin": "B07YS6FJ7N",
+    "rating": 4.5
   }
 }

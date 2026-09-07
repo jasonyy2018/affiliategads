@@ -6,8 +6,8 @@
   "headline": "Deuter Speed Lite 21 Lightweight Daypack: Comprehensive Hands-On Review",
   "subheadline": "We tested real-world performance, durability, and ergonomics. Here is our unbiased verdict.",
   "badge": "#1 TOP RATED 2026",
-  "rating": 4.8,
-  "rating_count": 12500,
+  "rating": 4.6,
+  "rating_count": 2180,
   "quick_verdict": "The Deuter Speed Lite 21 is the lightest 20L daypack we have tested, tipping the scales at just 430g while maintaining unexpected rigidity through its Delrin U-frame backpanel. It is an outstanding choice for fast alpine ascents, trail running, and minimalist scrambles where every ounce matters. We recommend it to hikers who prioritize speed and comfort over heavy load capacity.",
   "pros": [
     "Featherweight at only 430g — the lowest deadweight measured in the 20L daypack category during our lab testing",
@@ -156,6 +156,7 @@
     "price": 89.95,
     "commission_rate": 0.045,
     "image_url": "https://images.unsplash.com/photo-1546938576-6e6a64f317cc?auto=format&fit=crop&w=800&q=80",
-    "asin": "B09NVS44S2"
+    "asin": "B09NVS44S2",
+    "rating": 4.6
   }
 }

@@ -6,8 +6,8 @@
   "headline": "Osprey Daylite Plus Daypack (20L): Comprehensive Hands-On Review",
   "subheadline": "We tested real-world performance, durability, and ergonomics. Here is our unbiased verdict.",
   "badge": "#1 TOP RATED 2026",
-  "rating": 4.8,
-  "rating_count": 12500,
+  "rating": 4.7,
+  "rating_count": 14200,
   "quick_verdict": "The Osprey Daylite Plus is a standout 20L daypack that nails the balance between ultralight portability and everyday durability. At just 580g with a breathable AirScape backpanel and a DWR coating scoring 90/100 after 20 wash cycles, it excels as a commuter bag, gym pack, or trail companion. Its only trade-offs are the lack of full waterproofing and external compression, but for most users the versatility and Osprey's Lifetime Guarantee make it an undeniable value at $74.95.",
   "pros": [
     "At just 580g, it's one of the lightest 20L daypacks on the market, significantly reducing shoulder strain during all-day commutes or trail runs",
@@ -148,6 +148,7 @@
     "price": 74.95,
     "commission_rate": 0.045,
     "image_url": "https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?auto=format&fit=crop&w=800&q=80",
-    "asin": "B08LNWL52C"
+    "asin": "B08LNWL52C",
+    "rating": 4.7
   }
 }

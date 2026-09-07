@@ -1,8 +1,5 @@
-'use client';
-
 import React from 'react';
 import { Award, ShoppingCart, ExternalLink, ShieldCheck, CheckCircle2 } from 'lucide-react';
-import { trackAmazonOutboundClick } from './GoogleAdsTracker';
 import ProductImage from './ProductImage';
 
 export interface ComparisonProduct {
@@ -36,8 +33,6 @@ export default function StructuredComparison({
   products,
   categoryTitle,
 }: StructuredComparisonProps) {
-  const defaultTag = process.env.NEXT_PUBLIC_AMAZON_AFFILIATE_TAG || 'jyu0a-20';
-
   return (
     <div className="my-10 space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -65,15 +60,6 @@ export default function StructuredComparison({
           </thead>
           <tbody className="divide-y divide-gray-100">
             {products.map((p, idx) => {
-              const tag = p.affiliate_tag || defaultTag;
-              const cleanTitle = (p.title || '')
-                .replace(/[^\w\s-]/g, ' ')
-                .replace(/\s+/g, ' ')
-                .trim();
-              const amazonUrl = cleanTitle
-                ? `https://www.amazon.com/s?k=${encodeURIComponent(cleanTitle)}&tag=${tag}`
-                : `https://www.amazon.com/dp/${p.asin}?tag=${tag}`;
-
               return (
                 <tr
                   key={p.asin}

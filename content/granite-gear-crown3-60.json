@@ -7,7 +7,7 @@
   "subheadline": "We tested real-world performance, durability, and ergonomics. Here is our unbiased verdict.",
   "badge": "#1 TOP RATED 2026",
   "rating": 4.8,
-  "rating_count": 12500,
+  "rating_count": 1280,
   "quick_verdict": "The Granite Gear Crown3 60 is an exceptional choice for serious thru-hikers and lightweight backpackers seeking a durable yet ultralight pack. With a base weight under 2.4 lbs and a frame that supports up to 43 lbs comfortably, it offers a rare blend of expedition readiness and minimalist efficiency. This pack earns its legendary status through proven comfort, robust 100D Robic construction, and a breathable back panel system that excels on long-distance trails.",
   "pros": [
     "Ultralight base weight of only 1,080g (2.38 lbs) for a 60L pack, significantly reducing start-of-trail weight.",
@@ -130,6 +130,7 @@
     "price": 239.95,
     "commission_rate": 0.045,
     "image_url": "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=80",
-    "asin": "B09MVN68W2"
+    "asin": "B09MVN68W2",
+    "rating": 4.8
   }
 }
