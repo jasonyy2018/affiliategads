@@ -36,14 +36,22 @@ export function trackAmazonOutboundClick(asin: string, title: string) {
   const conversionId = process.env.NEXT_PUBLIC_GA_CONVERSION_ID;
   const conversionLabel = process.env.NEXT_PUBLIC_GA_CONVERSION_LABEL;
 
-  if (typeof window !== 'undefined' && (window as any).gtag && conversionId && conversionLabel) {
-    (window as any).gtag('event', 'conversion', {
-      send_to: `${conversionId}/${conversionLabel}`,
+  if (typeof window !== 'undefined' && (window as any).gtag && conversionId) {
+    const eventParams: Record<string, any> = {
       event_category: 'outbound_affiliate_click',
       event_label: asin,
+      item_name: title,
       value: 1.0,
       currency: 'USD',
-    });
+    };
+
+    if (conversionLabel && conversionLabel.trim().length > 0 && conversionLabel !== 'AbCdEfGhIjKlMnOpQrS') {
+      eventParams.send_to = `${conversionId}/${conversionLabel.trim()}`;
+      (window as any).gtag('event', 'conversion', eventParams);
+    } else {
+      (window as any).gtag('event', 'conversion', { ...eventParams, send_to: conversionId });
+      (window as any).gtag('event', 'outbound_click', eventParams);
+    }
   }
 
   // 本地开发调试日志

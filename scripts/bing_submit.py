@@ -76,6 +76,18 @@ def collect_urls(site_url: str) -> list[str]:
             slug = f.stem
             urls.append(f"{clean_site}/best/{slug}")
 
+    # 单品评测落地页
+    products_file = DATA_DIR / "products.json"
+    if products_file.exists():
+        try:
+            with open(products_file, "r", encoding="utf-8") as f:
+                products = json.load(f)
+                for p in products:
+                    if p.get("slug"):
+                        urls.append(f"{clean_site}/review/{p['slug']}")
+        except Exception:
+            pass
+
     return urls
 
 
@@ -105,6 +117,36 @@ def submit_to_bing(site_url: str, api_key: str, urls: list[str]) -> dict[str, An
         raise RuntimeError(f"Bing API HTTP {e.code}: {body}")
     except Exception as e:
         raise RuntimeError(f"Network error connecting to Bing API: {e}")
+
+
+def submit_to_indexnow(site_url: str, urls: list[str], key: str = "334ad38d1048ca468ee60121b2617001") -> dict[str, Any]:
+    """通过 IndexNow 开放协议全球网关进行跨引擎即时广播 (Bing, Yandex, Naver, Seznam)。"""
+    from urllib.parse import urlparse
+    parsed = urlparse(site_url)
+    host = parsed.netloc or site_url.replace("https://", "").replace("http://", "").split("/")[0]
+
+    api_endpoint = "https://api.indexnow.org/indexnow"
+    payload = {
+        "host": host,
+        "key": key,
+        "keyLocation": f"{site_url.rstrip('/')}/{key}.txt",
+        "urlList": urls[:500]
+    }
+    req_data = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(
+        api_endpoint,
+        data=req_data,
+        headers={"Content-Type": "application/json; charset=utf-8"},
+        method="POST"
+    )
+    ctx = ssl.create_default_context()
+    try:
+        with urllib.request.urlopen(req, context=ctx, timeout=15) as resp:
+            return {"status": resp.status, "msg": "IndexNow broadcast accepted"}
+    except urllib.error.HTTPError as e:
+        return {"status": e.code, "msg": f"IndexNow HTTP {e.code}"}
+    except Exception as e:
+        return {"status": 0, "msg": str(e)}
 
 
 def write_submission_report(
@@ -249,31 +291,48 @@ def main() -> None:
 
     # 4. 正式提交模式
     print(f"[*] 正在向 Bing Batch URL API 推送 {len(urls)} 个 URL (站点: {site_url})...")
+    bing_status = "未执行"
+    bing_err = None
     try:
         res = submit_to_bing(site_url, bing_key, urls)
-        print(f"[OK] 提交成功！Bing 官方已接收批处理请求 (HTTP {res.get('status')})")
-        write_submission_report(
-            site_url=site_url,
-            urls=urls,
-            mode="Bing 官方 API 实时推送 (Live Broadcast)",
-            status_msg=f"🟢 提交成功 (HTTP {res.get('status')})",
-            details=f"全站 {len(urls)} 个 URL 已成功送达 Bing Webmaster URL Batch API，等待 Bingbot 与 Copilot 搜索引擎抓取与收录。",
-        )
+        bing_status = f"🟢 成功 (HTTP {res.get('status')})"
+        print(f"[OK] Bing Webmaster 官方 API 提交成功！(HTTP {res.get('status')})")
     except Exception as err:
+        bing_err = str(err)
+        bing_status = f"🔴 异常: {err}"
         print(f"[警告] Bing API 返回提示: {err}")
-        print("[排查建议]:")
-        print(f"  1. 请确认域名 {site_url} 已在 Bing Webmaster Tools 中添加并验证所有权;")
-        print("  2. 请检查 BING_API_KEY 是否有效或已达今日推送限额;")
-        write_submission_report(
-            site_url=site_url,
-            urls=urls,
-            mode="Bing 官方 API 推送异常",
-            status_msg=f"🔴 推送返回异常: {err}",
-            details=f"推送遇到异常: `{err}`\n\n"
-                    f"**排查步骤**:\n"
-                    f"1. 确认 `{site_url}` 已在 Bing Webmaster 平台完成所有权验证；\n"
-                    f"2. 检查 API Key 权限或使用后台的「测试 Bing 连通性」功能核实。",
-        )
+
+    # 5. IndexNow 全球网关广播
+    print(f"[*] 正在向 IndexNow 全球网关广播 (同步至 Bing, Yandex, Naver, Seznam)...")
+    indexnow_status = "—"
+    try:
+        in_res = submit_to_indexnow(site_url, urls)
+        if in_res.get("status") in (200, 202):
+            indexnow_status = f"🟢 广播成功 (HTTP {in_res.get('status')} Accepted)"
+            print(f"[OK] IndexNow 全球广播成功！(HTTP {in_res.get('status')})")
+        else:
+            indexnow_status = f"⚠️ HTTP {in_res.get('status')}: {in_res.get('msg')}"
+            print(f"[提示] IndexNow 广播状态: {indexnow_status}")
+    except Exception as in_err:
+        indexnow_status = f"⚠️ 广播超时: {in_err}"
+        print(f"[提示] IndexNow 广播异常: {in_err}")
+
+    details_text = (
+        f"**双通道推送综合摘要**:\n\n"
+        f"- **Bing Webmaster 官方通道**: {bing_status}\n"
+        f"- **IndexNow 全球多引擎通道 (Yandex / Naver / Seznam)**: {indexnow_status}\n\n"
+        f"共计 {len(urls)} 个核心页面已送达搜索引擎极速索引管道。"
+    )
+    if bing_err:
+        details_text += f"\n\n**Bing 提示**: `{bing_err}`\n\n*请确认域名已在 Bing Webmaster 验证且未超今日配额。*"
+
+    write_submission_report(
+        site_url=site_url,
+        urls=urls,
+        mode="Bing Webmaster + IndexNow 双通道实时推送",
+        status_msg=f"{bing_status} | IndexNow: {indexnow_status}",
+        details=details_text,
+    )
 
 
 if __name__ == "__main__":

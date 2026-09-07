@@ -28,6 +28,13 @@ function collectUrls(siteUrl: string): string[] {
     }
   }
 
+  const products = readJson<any[]>(path.join(DATA_DIR, 'products.json'), []);
+  for (const p of products) {
+    if (p.slug) {
+      urls.push(`${clean}/review/${p.slug}`);
+    }
+  }
+
   return urls;
 }
 
@@ -85,17 +92,47 @@ export async function runBingSubmit(apply = true): Promise<BingSubmitResult> {
       }
     }
 
+    // 2. IndexNow 全球中继网关广播 (同步通知 Bing, Yandex, Naver, Seznam)
+    let indexNowStatus = '—';
+    const indexNowKey = process.env.INDEXNOW_KEY || '334ad38d1048ca468ee60121b2617001';
+    if (apply && !siteUrl.includes('localhost') && !siteUrl.includes('127.0.0.1')) {
+      try {
+        const host = new URL(siteUrl).host;
+        const batch = urls.slice(0, 500);
+        const indexNowRes = await fetch('https://api.indexnow.org/indexnow', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json; charset=utf-8' },
+          body: JSON.stringify({
+            host,
+            key: indexNowKey,
+            keyLocation: `${siteUrl}/${indexNowKey}.txt`,
+            urlList: batch,
+          }),
+        });
+        if (indexNowRes.ok || indexNowRes.status === 202) {
+          indexNowStatus = `✅ 广播成功 (HTTP ${indexNowRes.status} Accepted)`;
+        } else {
+          indexNowStatus = `⚠️ HTTP ${indexNowRes.status}`;
+        }
+      } catch (inErr: any) {
+        indexNowStatus = `⚠️ 广播网络超时: ${inErr?.message || 'timeout'}`;
+      }
+    } else if (apply) {
+      indexNowStatus = '🟡 本地开发环境跳过 (生产域名时自动广播)';
+    }
+
     const lines = [
-      '# 🚀 Bing Webmaster URL 批量推送报告',
+      '# 🚀 Bing Webmaster & IndexNow 双通道极速收录推送报告',
       '',
       `> 生成时间: ${new Date().toISOString()} | 模式: ${mode === 'live' ? '✅ 实盘推送' : '👁 预览 (未配置 BING_API_KEY 或未 apply)'}`,
       '',
       `| 指标 | 数值 |`,
       `|---|---|`,
-      `| 收集 URL | ${urls.length} |`,
-      `| 已推送 | ${mode === 'live' ? submitted : 0} |`,
-      `| 每日配额 | ${quota?.daily ?? '—'} |`,
-      `| 剩余配额 | ${quota?.remaining ?? '—'} |`,
+      `| 收集 URL 总数 | ${urls.length} |`,
+      `| Bing Webmaster 官方通道 | ${mode === 'live' ? `✅ 已提交 ${submitted} 篇` : '—'} |`,
+      `| Bing 官方每日配额 | ${quota?.daily ?? '—'} |`,
+      `| Bing 官方剩余配额 | ${quota?.remaining ?? '—'} |`,
+      `| IndexNow 全球中继广播 (Bing/Yandex/Naver) | ${indexNowStatus} |`,
       '',
       '## URL 清单',
       '',

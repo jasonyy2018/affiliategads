@@ -65,9 +65,9 @@ export const ADMIN_I18N = {
     toolEpcDesc: '按品类反查 Tracking ID 真实出单佣金与每点击收益 (EPC)。',
     toolEpcBtn: '开始 EPC 归因对账',
 
-    toolBingTitle: 'Bing / ChatGPT 搜索极速推送',
-    toolBingDesc: '调用 Bing Batch URL API 批量提交全站 94+ 链接，抢占 AI 索引。',
-    toolBingBtn: '批量推送至 Bing',
+    toolBingTitle: 'Bing + IndexNow 双通道极速收录推送',
+    toolBingDesc: '通过 Bing 官方 Batch API + IndexNow 全球网关，一键同步推送至 Bing、Copilot、ChatGPT 及 Yandex。',
+    toolBingBtn: '双通道极速推送',
 
     toolGeoTitle: '普林斯顿 KDD GEO 全站扫描',
     toolGeoDesc: '扫描全站 50 个对比页的直接答案、量化数据、权威引用完整度。',
@@ -262,9 +262,9 @@ export const ADMIN_I18N = {
     toolEpcDesc: 'Attributes Tracking ID commission and calculates category-specific earnings per click (EPC).',
     toolEpcBtn: 'Run EPC Attribution',
 
-    toolBingTitle: 'Bing / ChatGPT Search URL Batch Push',
-    toolBingDesc: 'Pushes 94+ URLs to Bing Webmaster Batch API to capture Copilot and ChatGPT search indexation.',
-    toolBingBtn: 'Batch Submit to Bing',
+    toolBingTitle: 'Bing + IndexNow Dual-Engine Instant Push',
+    toolBingDesc: 'Batch submits full site URLs via Bing Webmaster Batch API + IndexNow Global Protocol (Bing, ChatGPT, Yandex).',
+    toolBingBtn: 'Push to Bing & IndexNow',
 
     toolGeoTitle: 'Princeton KDD GEO Full Site Audit',
     toolGeoDesc: 'Audits 50 comparison pages for direct answers, quantitative lab metrics, and authoritative citations.',
