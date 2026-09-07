@@ -1,6 +1,7 @@
 import React from 'react';
 import { Award, ShoppingCart, ExternalLink, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import ProductImage from './ProductImage';
+import AmazonCTAButton from './AmazonCTAButton';
 
 export interface ComparisonProduct {
   asin: string;
@@ -134,19 +135,14 @@ export default function StructuredComparison({
                     </span>
                   </td>
 
-                  {/* 跳转按钮 */}
+                  {/* 跳转按钮（客户端叶子组件，紧凑模式） */}
                   <td className="py-4 px-4 text-center">
-                    <a
-                      href={amazonUrl}
-                      target="_blank"
-                      rel="sponsored nofollow noopener"
-                      onClick={() => trackAmazonOutboundClick(p.asin, p.title)}
-                      className="inline-flex items-center justify-center gap-1.5 py-2 px-3.5 bg-amber-400 hover:bg-amber-500 text-gray-950 font-bold text-xs rounded-xl shadow-xs active:scale-95 transition"
-                    >
-                      <ShoppingCart className="w-3.5 h-3.5" />
-                      <span>Check Price</span>
-                      <ExternalLink className="w-3 h-3 opacity-70" />
-                    </a>
+                    <AmazonCTAButton
+                      asin={p.asin}
+                      title={p.title}
+                      customText="Check Price"
+                      size="compact"
+                    />
                   </td>
                 </tr>
               );

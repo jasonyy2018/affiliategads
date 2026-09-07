@@ -8,7 +8,7 @@ interface AmazonCTAButtonProps {
   asin: string;
   title: string;
   customText?: string;
-  size?: 'normal' | 'large' | 'floating';
+  size?: 'normal' | 'large' | 'floating' | 'compact';
   className?: string;
 }
 
@@ -34,6 +34,23 @@ export default function AmazonCTAButton({
   const handleClick = () => {
     trackAmazonOutboundClick(asin, title);
   };
+
+  // 紧凑模式：表格行内使用，只渲染按钮本体（无外层包装与背书行）
+  if (size === 'compact') {
+    return (
+      <a
+        href={amazonUrl}
+        target="_blank"
+        rel="sponsored nofollow noopener"
+        onClick={handleClick}
+        className={`inline-flex items-center justify-center gap-1.5 py-2 px-3.5 bg-amber-400 hover:bg-amber-500 text-gray-950 font-bold text-xs rounded-xl shadow-xs active:scale-95 transition ${className}`}
+      >
+        <ShoppingCart className="w-3.5 h-3.5" />
+        <span>{customText}</span>
+        <ExternalLink className="w-3 h-3 opacity-70" />
+      </a>
+    );
+  }
 
   if (size === 'floating') {
     return (

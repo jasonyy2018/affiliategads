@@ -120,7 +120,7 @@ export default function AiDirectAnswer({
           asin={winnerAsin || ''}
           title={winnerTitle}
           customText={`Check on Amazon`}
-          size="normal"
+          size="compact"
         />
       </div>
     </div>
