@@ -16,6 +16,8 @@ import { runGscMonitor } from './gscMonitor';
 import { runSocialDispatch } from './socialDispatch';
 import { runPriceTracker } from './priceTrackerTask';
 import { runImageSync } from './imageSync';
+import { runPreLaunchAudit } from './preLaunchAudit';
+import { runMatrixOpportunities } from './matrixOpportunities';
 
 export interface TaskResult {
   success: boolean;
@@ -128,6 +130,16 @@ export const TASK_REGISTRY: Record<string, TaskDefinition> = {
     label: '商品官方图同步',
     description: 'PA-API 拉取 Amazon 官方商品图，替换 Unsplash 占位图',
     run: () => runImageSync(),
+  },
+  prelaunch_audit: {
+    label: '上线预检',
+    description: '10 项部署前检查：域名/密钥/内容/收录/合规/邮件',
+    run: () => runPreLaunchAudit(),
+  },
+  matrix_opportunities: {
+    label: 'pSEO 矩阵扩产机会分析',
+    description: '扫描 READY/GAP 组合，数据驱动扩产决策（输出 reports/matrix_opportunities.md）',
+    run: () => runMatrixOpportunities(),
   },
 };
 

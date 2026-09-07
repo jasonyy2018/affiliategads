@@ -1084,6 +1084,62 @@ export default function AdminDashboardPage() {
                   <ArrowUpRight className="w-3.5 h-3.5" />
                 </button>
               </div>
+
+              {/* 工具 10: 上线预检 */}
+              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3 hover:border-emerald-500/40 transition">
+                <div className="flex items-center justify-between">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold">
+                    <ShieldCheck className="w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] font-mono text-slate-500">engine: preLaunchAudit</span>
+                </div>
+                <div>
+                  <h4 className="font-bold text-white text-sm">
+                    {lang === 'zh' ? '上线预检 (10 项)' : 'Pre-Launch Audit (10 checks)'}
+                  </h4>
+                  <p className="text-xs text-slate-400 mt-1">
+                    {lang === 'zh'
+                      ? '域名/密钥/内容/收录/合规/邮件 — 部署前一键核对。'
+                      : 'Domain/keys/content/indexing/compliance/email — verify before deploy.'}
+                  </p>
+                </div>
+                <button
+                  disabled={isExecuting}
+                  onClick={() => runPyTask('prelaunch_audit', lang === 'zh' ? '上线预检' : 'Pre-Launch Audit')}
+                  className="w-full py-2.5 px-3 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 text-xs font-bold rounded-xl border border-emerald-500/40 flex items-center justify-center gap-1.5 transition"
+                >
+                  <span>{lang === 'zh' ? '运行预检' : 'Run Audit'}</span>
+                  <ArrowUpRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              {/* 工具 11: 矩阵扩产机会分析 */}
+              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3 hover:border-violet-500/40 transition">
+                <div className="flex items-center justify-between">
+                  <div className="w-9 h-9 rounded-xl bg-violet-500/10 text-violet-400 flex items-center justify-center font-bold">
+                    <Layers className="w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] font-mono text-slate-500">engine: matrixOpportunities</span>
+                </div>
+                <div>
+                  <h4 className="font-bold text-white text-sm">
+                    {lang === 'zh' ? 'pSEO 扩产机会分析' : 'pSEO Expansion Opportunities'}
+                  </h4>
+                  <p className="text-xs text-slate-400 mt-1">
+                    {lang === 'zh'
+                      ? '扫描商品密度足够但未生成的组合 → 数据驱动扩产清单。'
+                      : 'Find READY combos (≥3 products, page missing) — data-driven expansion.'}
+                  </p>
+                </div>
+                <button
+                  disabled={isExecuting}
+                  onClick={() => runPyTask('matrix_opportunities', lang === 'zh' ? '扩产分析' : 'Opportunities')}
+                  className="w-full py-2.5 px-3 bg-slate-800 hover:bg-slate-750 text-slate-200 text-xs font-bold rounded-xl border border-slate-700 flex items-center justify-center gap-1.5 transition"
+                >
+                  <span>{lang === 'zh' ? '扫描机会' : 'Scan Opportunities'}</span>
+                  <ArrowUpRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
 
             {/* 实时终端日志输出窗口 */}
@@ -1150,6 +1206,7 @@ export default function AdminDashboardPage() {
                 { key: 'epcReport', label: t.reportTabEpc },
                 { key: 'rankReport', label: t.reportTabRank },
                 { key: 'pruneReport', label: t.reportTabPrune },
+                { key: 'matrixReport', label: lang === 'zh' ? '🧩 扩产机会' : '🧩 Opportunities' },
               ].map((tab) => (
                 <button
                   key={tab.key}

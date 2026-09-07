@@ -30,6 +30,7 @@ export async function GET(req: Request) {
   const pruneReport = readSafe(path.join(reportsDir, 'prune_log.md'));
   const socialReport = readSafe(path.join(reportsDir, 'social_dispatch_report.md'));
   const bingReport = readSafe(path.join(reportsDir, 'bing_submission_report.md'));
+  const matrixReport = readSafe(path.join(reportsDir, 'matrix_opportunities.md'));
 
   // 统计已生成 pSEO 页面数
   const pagesDir = path.join(contentDir, 'pages');
@@ -76,6 +77,7 @@ export async function GET(req: Request) {
       pruneReport,
       socialReport,
       bingReport,
+      matrixReport,
     },
     syndicateStats: {
       reddit: redditCount,
