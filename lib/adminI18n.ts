@@ -195,7 +195,7 @@ export const ADMIN_I18N = {
     cfgAdminSecretDesc: '用于保护本管理后台。修改并保存后，系统将自动使用新密码作为访问凭证。',
     cfgAdminSecretPlaceholder: '输入新密码以修改当前访问口令 (留空则保持当前密码)',
 
-    settingsSaveBtn: '保存所有配置至 .env.local',
+    settingsSaveBtn: '保存所有配置至系统持久化库',
     settingsCloseBtn: '关闭',
   },
   en: {
@@ -392,7 +392,7 @@ export const ADMIN_I18N = {
     cfgAdminSecretDesc: 'Protects financial metrics, API keys, and pipeline triggers. System will immediately require this key on next login.',
     cfgAdminSecretPlaceholder: 'Enter new password to update gate key (Leave empty to keep current)',
 
-    settingsSaveBtn: 'Save All Configurations to .env.local',
+    settingsSaveBtn: 'Save to Persistent Database',
     settingsCloseBtn: 'Close',
   },
 };

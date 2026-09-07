@@ -3,13 +3,14 @@ import fs from 'fs';
 import path from 'path';
 import { isAuthorized, unauthorized } from '@/lib/adminAuth';
 
+const SETTINGS_JSON_PATH = path.join(process.cwd(), 'data', 'settings.json');
 const ENV_LOCAL_PATH = path.join(process.cwd(), '.env.local');
 
 function parseEnvFile(filePath: string): Record<string, string> {
   const result: Record<string, string> = {};
   try {
-    if (!fs.existsSync(filePath)) return result;
-    const content = fs.readFileSync(filePath, 'utf-8');
+    if (!fs.existsSync(/*turbopackIgnore: true*/ filePath)) return result;
+    const content = fs.readFileSync(/*turbopackIgnore: true*/ filePath, 'utf-8');
     const lines = content.split('\n');
     for (const line of lines) {
       const trimmed = line.trim();
@@ -18,8 +19,37 @@ function parseEnvFile(filePath: string): Record<string, string> {
       result[key.trim()] = rest.join('=').trim().replace(/^["']|["']$/g, '');
     }
   } catch (err: any) {
-    console.warn(`[Settings] Notice: could not read ${filePath} (${err.message}). Falling back to process.env.`);
+    console.warn(`[Settings] Notice: could not read ${filePath} (${err.message}).`);
   }
+  return result;
+}
+
+/**
+ * 统一合并系统设置：优先读取持久化数据库 data/settings.json（宿主机 ./data 映射，永不丢失），
+ * 次之读取 .env.local 与 process.env 作为底座。
+ */
+function loadMergedSettings(): Record<string, string> {
+  const result: Record<string, string> = {};
+
+  // 1. 读取 .env.local
+  const fileEnvs = parseEnvFile(ENV_LOCAL_PATH);
+  Object.assign(result, fileEnvs);
+
+  // 2. 读取持久化文件数据库 data/settings.json (宿主已做 ./data 映射，最高权威，重启永不丢失)
+  try {
+    if (fs.existsSync(/*turbopackIgnore: true*/ SETTINGS_JSON_PATH)) {
+      const content = fs.readFileSync(/*turbopackIgnore: true*/ SETTINGS_JSON_PATH, 'utf-8');
+      const dbSettings = JSON.parse(content);
+      for (const [k, v] of Object.entries(dbSettings)) {
+        if (typeof v === 'string' && v.trim()) {
+          result[k] = v.trim();
+        }
+      }
+    }
+  } catch (err: any) {
+    console.warn(`[Settings DB] Notice: could not read ${SETTINGS_JSON_PATH}:`, err.message);
+  }
+
   return result;
 }
 
@@ -30,8 +60,8 @@ function parseEnvFile(filePath: string): Record<string, string> {
 function updateEnvFile(filePath: string, updates: Record<string, string>): { written: boolean; error?: string } {
   try {
     let content = '';
-    if (fs.existsSync(filePath)) {
-      content = fs.readFileSync(filePath, 'utf-8');
+    if (fs.existsSync(/*turbopackIgnore: true*/ filePath)) {
+      content = fs.readFileSync(/*turbopackIgnore: true*/ filePath, 'utf-8');
     } else {
       content = '# ==========================================\n# Affiliate Site Configurations\n# ==========================================\n';
     }
@@ -54,10 +84,10 @@ function updateEnvFile(filePath: string, updates: Record<string, string>): { wri
       lines.push(`${k}=${v}`);
     }
 
-    fs.writeFileSync(filePath, lines.join('\n'), 'utf-8');
+    fs.writeFileSync(/*turbopackIgnore: true*/ filePath, lines.join('\n'), 'utf-8');
     return { written: true };
   } catch (err: any) {
-    console.warn(`[Settings] Notice: could not write to ${filePath} (${err.code || err.message}). Runtime memory has been updated.`);
+    console.warn(`[Settings] Notice: could not write to ${filePath} (${err.code || err.message}).`);
     return { written: false, error: err.message };
   }
 }
@@ -71,31 +101,31 @@ function maskKey(key: string | undefined): string {
 export async function GET(req: Request) {
   if (!isAuthorized(req)) return unauthorized();
 
-  const fileEnvs = parseEnvFile(ENV_LOCAL_PATH);
+  const merged = loadMergedSettings();
 
-  const anthropicKey = fileEnvs['ANTHROPIC_API_KEY'] || process.env.ANTHROPIC_API_KEY || '';
-  const openaiKey = fileEnvs['OPENAI_API_KEY'] || process.env.OPENAI_API_KEY || '';
-  const amazonTag = fileEnvs['NEXT_PUBLIC_AMAZON_AFFILIATE_TAG'] || process.env.NEXT_PUBLIC_AMAZON_AFFILIATE_TAG || 'yourtag-20';
-  const gaId = fileEnvs['NEXT_PUBLIC_GA_CONVERSION_ID'] || process.env.NEXT_PUBLIC_GA_CONVERSION_ID || 'AW-123456789';
-  const gaLabel = fileEnvs['NEXT_PUBLIC_GA_CONVERSION_LABEL'] || process.env.NEXT_PUBLIC_GA_CONVERSION_LABEL || '';
-  const defaultModel = fileEnvs['AI_MODEL_CHOICE'] || process.env.AI_MODEL_CHOICE || 'auto';
+  const anthropicKey = merged['ANTHROPIC_API_KEY'] || process.env.ANTHROPIC_API_KEY || '';
+  const openaiKey = merged['OPENAI_API_KEY'] || process.env.OPENAI_API_KEY || '';
+  const amazonTag = merged['NEXT_PUBLIC_AMAZON_AFFILIATE_TAG'] || process.env.NEXT_PUBLIC_AMAZON_AFFILIATE_TAG || 'yourtag-20';
+  const gaId = merged['NEXT_PUBLIC_GA_CONVERSION_ID'] || process.env.NEXT_PUBLIC_GA_CONVERSION_ID || 'AW-17885747857';
+  const gaLabel = merged['NEXT_PUBLIC_GA_CONVERSION_LABEL'] || process.env.NEXT_PUBLIC_GA_CONVERSION_LABEL || '';
+  const defaultModel = merged['AI_MODEL_CHOICE'] || process.env.AI_MODEL_CHOICE || 'auto';
 
   // 第三方自定义 API 配置
-  const customBaseUrl = fileEnvs['CUSTOM_AI_BASE_URL'] || process.env.CUSTOM_AI_BASE_URL || '';
-  const customApiKey = fileEnvs['CUSTOM_AI_API_KEY'] || process.env.CUSTOM_AI_API_KEY || '';
-  const customModel = fileEnvs['CUSTOM_AI_MODEL'] || process.env.CUSTOM_AI_MODEL || 'deepseek-chat';
-  const customProtocol = fileEnvs['CUSTOM_AI_PROTOCOL'] || process.env.CUSTOM_AI_PROTOCOL || 'openai';
+  const customBaseUrl = merged['CUSTOM_AI_BASE_URL'] || process.env.CUSTOM_AI_BASE_URL || '';
+  const customApiKey = merged['CUSTOM_AI_API_KEY'] || process.env.CUSTOM_AI_API_KEY || '';
+  const customModel = merged['CUSTOM_AI_MODEL'] || process.env.CUSTOM_AI_MODEL || 'deepseek-chat';
+  const customProtocol = merged['CUSTOM_AI_PROTOCOL'] || process.env.CUSTOM_AI_PROTOCOL || 'openai';
 
   // 搜索引擎与收录
-  const bingApiKey = fileEnvs['BING_API_KEY'] || process.env.BING_API_KEY || '';
-  const siteUrl = fileEnvs['NEXT_PUBLIC_SITE_URL'] || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  const bingApiKey = merged['BING_API_KEY'] || process.env.BING_API_KEY || '';
+  const siteUrl = merged['NEXT_PUBLIC_SITE_URL'] || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
   // 社媒广播与 Webhook 中继
-  const socialWebhookUrl = fileEnvs['SOCIAL_WEBHOOK_URL'] || process.env.SOCIAL_WEBHOOK_URL || '';
-  const ayrshareApiKey = fileEnvs['AYRSHARE_API_KEY'] || process.env.AYRSHARE_API_KEY || '';
+  const socialWebhookUrl = merged['SOCIAL_WEBHOOK_URL'] || process.env.SOCIAL_WEBHOOK_URL || '';
+  const ayrshareApiKey = merged['AYRSHARE_API_KEY'] || process.env.AYRSHARE_API_KEY || '';
 
   // 安全门禁密码
-  const adminSecretKey = fileEnvs['ADMIN_SECRET_KEY'] || process.env.ADMIN_SECRET_KEY || 'opc2026';
+  const adminSecretKey = merged['ADMIN_SECRET_KEY'] || process.env.ADMIN_SECRET_KEY || 'opc2026';
 
   return NextResponse.json({
     success: true,
@@ -227,15 +257,35 @@ export async function POST(req: Request) {
       process.env.AI_MODEL_CHOICE = defaultModel;
     }
 
+    // 1. 持久化存储到系统数据库 data/settings.json（宿主机 ./data 已挂载映射，永不丢失）
+    let dbSaved = false;
+    try {
+      let existingDb: Record<string, any> = {};
+      if (fs.existsSync(/*turbopackIgnore: true*/ SETTINGS_JSON_PATH)) {
+        try {
+          existingDb = JSON.parse(fs.readFileSync(/*turbopackIgnore: true*/ SETTINGS_JSON_PATH, 'utf-8'));
+        } catch {
+          existingDb = {};
+        }
+      }
+      const newDb = { ...existingDb, ...updates };
+      fs.mkdirSync(path.dirname(SETTINGS_JSON_PATH), { recursive: true });
+      fs.writeFileSync(/*turbopackIgnore: true*/ SETTINGS_JSON_PATH, JSON.stringify(newDb, null, 2), 'utf-8');
+      dbSaved = true;
+    } catch (dbErr: any) {
+      console.error('[Settings DB] Error saving to data/settings.json:', dbErr.message);
+    }
+
+    // 2. 双写同步到本地 .env.local 文件
     const writeResult = updateEnvFile(ENV_LOCAL_PATH, updates);
 
     return NextResponse.json({
       success: true,
-      persisted: writeResult.written,
-      message: writeResult.written
-        ? 'Settings and API keys updated successfully in .env.local.'
-        : 'Settings updated in runtime memory! Notice: could not persist to /app/.env.local due to server file permissions (EACCES). Run "chmod 666 /app/.env.local" on server to persist permanently across restarts.',
-      warning: writeResult.written ? undefined : writeResult.error,
+      persisted: dbSaved || writeResult.written,
+      message: dbSaved
+        ? '配置已成功持久化保存至系统数据库 (data/settings.json) 并同步更新环境，容器重启永不丢失。'
+        : '配置已更新至运行内存。',
+      warning: dbSaved ? undefined : writeResult.error,
     });
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });

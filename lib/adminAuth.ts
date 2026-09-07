@@ -25,7 +25,25 @@ function getSecret(): string {
     return envSecret.trim();
   }
 
-  // 2. 尝试从本地 .env.local 或 .env 文件读取 (针对 Docker/standalone 模式下未注入环境变量的情况)
+  // 2. 优先从系统持久化数据库 data/settings.json 读取 (宿主 ./data 映射，永不丢失)
+  try {
+    const dbCandidates = [
+      path.join(process.cwd(), 'data', 'settings.json'),
+      '/app/data/settings.json',
+    ];
+    for (const dbPath of dbCandidates) {
+      if (fs.existsSync(/*turbopackIgnore: true*/ dbPath)) {
+        const db = JSON.parse(fs.readFileSync(/*turbopackIgnore: true*/ dbPath, 'utf-8'));
+        const val = db.ADMIN_SECRET_KEY;
+        if (typeof val === 'string' && val.trim().length >= 6) {
+          process.env.ADMIN_SECRET_KEY = val.trim();
+          return val.trim();
+        }
+      }
+    }
+  } catch {}
+
+  // 3. 尝试从本地 .env.local 或 .env 文件读取 (针对 Docker/standalone 模式下未注入环境变量的情况)
   try {
     const candidates = [
       path.join(process.cwd(), '.env.local'),

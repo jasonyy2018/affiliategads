@@ -38,16 +38,27 @@ ENV_LOCAL_PATH = ROOT / ".env.local"
 
 def load_env_local() -> dict[str, str]:
     envs: dict[str, str] = {}
-    if not ENV_LOCAL_PATH.exists():
-        return envs
-    with open(ENV_LOCAL_PATH, "r", encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if not line or line.startsWith("#") if hasattr(line, "startsWith") else line.startswith("#"):
-                continue
-            if "=" in line:
-                k, v = line.split("=", 1)
-                envs[k.strip()] = v.strip().strip("'\"")
+    if ENV_LOCAL_PATH.exists():
+        with open(ENV_LOCAL_PATH, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                if "=" in line:
+                    k, v = line.split("=", 1)
+                    envs[k.strip()] = v.strip().strip("'\"")
+
+    settings_file = ROOT / "data" / "settings.json"
+    if settings_file.exists():
+        try:
+            with open(settings_file, "r", encoding="utf-8") as f:
+                db_settings = json.load(f)
+                for k, v in db_settings.items():
+                    if isinstance(v, str) and v.strip():
+                        envs[k] = v.strip()
+        except Exception:
+            pass
+
     return envs
 
 

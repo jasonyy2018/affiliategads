@@ -45,7 +45,7 @@ TRACKING_MAP_FILE = DATA_DIR / "tracking_ids.json"
 
 
 def load_env() -> dict[str, str]:
-    """加载 .env.local 或 .env 环境变量。"""
+    """加载 .env.local 或 .env 环境变量，并合并系统数据库 data/settings.json。"""
     env_vars = {}
     for env_file in [ROOT / ".env.local", ROOT / ".env"]:
         if env_file.exists():
@@ -56,6 +56,18 @@ def load_env() -> dict[str, str]:
                         continue
                     k, v = line.split("=", 1)
                     env_vars[k.strip()] = v.strip().strip("\"'")
+
+    settings_file = DATA_DIR / "settings.json"
+    if settings_file.exists():
+        try:
+            with open(settings_file, "r", encoding="utf-8") as f:
+                db_settings = json.load(f)
+                for k, v in db_settings.items():
+                    if isinstance(v, str) and v.strip():
+                        env_vars[k] = v.strip()
+        except Exception:
+            pass
+
     return env_vars
 
 

@@ -2017,8 +2017,11 @@ export default function AdminDashboardPage() {
 
               {/* 底部保存与关闭操作栏 */}
               <div className="flex items-center justify-between pt-4 border-t border-slate-800 mt-6">
-                <div className="text-[11px] text-slate-500 font-mono">
-                  Synced File: <span className="text-slate-400">.env.local</span>
+                <div className="text-[11px] text-slate-500 font-mono flex items-center gap-1.5">
+                  <span>Persistence:</span>
+                  <span className="text-emerald-400 font-semibold">data/settings.json</span>
+                  <span className="text-slate-600">|</span>
+                  <span className="text-slate-400">.env.local</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <button
