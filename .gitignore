@@ -13,6 +13,11 @@ out/
 # 运行时配置数据库（含 ADMIN_SECRET_KEY / 各 API 密钥明文，绝不提交）
 data/settings.json
 
+# GSC 服务账号凭证（含 GCP 权限，挂进容器/服务器用，绝不提交）
+gsc-service-account.json
+*.service-account.json
+gcp-*.json
+
 # 运行时用户数据（含 PII：买家邮箱）
 data/leads.json
 
