@@ -1,0 +1,13 @@
+# 统一行尾策略：仓库内统一 LF，杜绝 Windows autocrlf 把 shell 脚本改成 CRLF
+# 导致 Alpine 容器内 entrypoint 报 "not found" 的经典事故
+* text=auto eol=lf
+
+# 明确二进制文件不做任何转换
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg binary
+*.woff binary
+*.woff2 binary

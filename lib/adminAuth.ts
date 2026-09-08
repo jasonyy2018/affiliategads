@@ -5,7 +5,7 @@
  *  - HMAC-SHA256 签名 token（非明文回传密码），带过期时间
  *  - 登录限速（每 IP 5 次/5 分钟，防爆破）
  *  - 不再读取 .env.local 文件（Next.js 已自动注入 process.env）
- *  - 无 ADMIN_SECRET_KEY 环境变量时拒绝启动鉴权（不回退到弱默认密码）
+ *  - 无 ADMIN_SECRET_KEY 时不回落弱默认密码，直接拒绝全部登录（fail-closed）
  */
 import crypto from 'crypto';
 import fs from 'fs';
@@ -68,8 +68,9 @@ function getSecret(): string {
     // 忽略文件读取异常
   }
 
-  // 3. 兜底默认开发密钥（确保未配置环境变量时不崩溃）
-  return 'opc2026';
+  // 3. 兜底：未配置任何密钥 → 返回空串（fail-closed：verifyPassword/isAuthorized 全部拒绝）
+  // 绝不回落到弱默认密码——弱密码兜底等于把管理后台向全网开放。
+  return '';
 }
 
 function safeEqual(a: string, b: string): boolean {
@@ -81,9 +82,13 @@ function safeEqual(a: string, b: string): boolean {
 
 /**
  * 校验登录密码；成功则签发 HMAC token。
+ * 未配置 ADMIN_SECRET_KEY 时 secret 为空串 → 一律拒绝（fail-closed）。
  */
 export function verifyPassword(password: string): { ok: boolean; token?: string; error?: string } {
   const secret = getSecret();
+  if (!secret) {
+    return { ok: false, error: 'Admin access key is not configured. Set ADMIN_SECRET_KEY in the admin settings or environment.' };
+  }
   if (!password || !safeEqual(password, secret)) {
     return { ok: false, error: 'Incorrect admin access key.' };
   }
@@ -96,6 +101,8 @@ export function verifyPassword(password: string): { ok: boolean; token?: string;
  */
 export function issueToken(): string {
   const secret = getSecret();
+  if (!secret) throw new Error('ADMIN_SECRET_KEY not configured');
+
   const payload = JSON.stringify({
     scope: 'admin',
     iat: Date.now(),
@@ -111,7 +118,7 @@ export function issueToken(): string {
  */
 export function isAuthorized(req: Request): boolean {
   const secret = getSecret();
-  if (!secret) return false;
+  if (!secret) return false; // 未配置密钥 → fail-closed
 
   const authHeader = req.headers.get('authorization') || '';
   const altHeader = req.headers.get('x-admin-token') || '';

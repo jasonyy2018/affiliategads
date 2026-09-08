@@ -76,5 +76,6 @@ docker compose up -d --build
 
 - `/api/admin/*` 全部经 proxy.ts 预检 + lib/adminAuth.ts HMAC 校验（12h token 过期）
 - 登录限速：5 次 / 5 分钟 / IP
+- 未配置 `ADMIN_SECRET_KEY` 时后台一律拒绝登录（fail-closed，无弱密码兜底）
 - 买家留资 GET 接口已移除（PII 防泄露），名单走后台导出
-- `.env.local`、`data/leads.json` 已列入 .gitignore
+- `data/settings.json`（含全部密钥明文）、`.env.local`、`data/leads.json` 均已列入 .gitignore，绝不提交

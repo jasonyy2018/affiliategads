@@ -10,6 +10,27 @@ interface MatrixData {
   excluded_combinations: Array<{ category: string; use_case: string }>;
 }
 
+/**
+ * 读取 pSEO 页面快照的 generated_at 作为真实 lastModified。
+ * 写死 new Date()（构建当天）会让搜索引擎每次构建都认为全站更新，
+ * 属于噪音信号；快照无时间戳时回退到文件 mtime，再兜底当天。
+ */
+function getPageLastModified(slug: string): Date {
+  const pageJsonPath = path.join(process.cwd(), 'content', 'pages', `${slug}.json`);
+  try {
+    if (fs.existsSync(pageJsonPath)) {
+      const data = JSON.parse(fs.readFileSync(pageJsonPath, 'utf-8'));
+      if (typeof data.generated_at === 'string') {
+        const d = new Date(`${data.generated_at}T00:00:00Z`);
+        if (!isNaN(d.getTime())) return d;
+      }
+      const stat = fs.statSync(pageJsonPath);
+      if (stat.mtime) return stat.mtime;
+    }
+  } catch {}
+  return new Date();
+}
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = getSiteUrl();
   const routes: MetadataRoute.Sitemap = [];
@@ -86,7 +107,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   for (const slug of validSlugs) {
     routes.push({
       url: `${baseUrl}/best/${slug}`,
-      lastModified: new Date(),
+      lastModified: getPageLastModified(slug),
       changeFrequency: 'weekly',
       priority: 0.8,
     });

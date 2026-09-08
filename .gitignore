@@ -10,6 +10,9 @@ out/
 .env.local
 .env.*.local
 
+# 运行时配置数据库（含 ADMIN_SECRET_KEY / 各 API 密钥明文，绝不提交）
+data/settings.json
+
 # 运行时用户数据（含 PII：买家邮箱）
 data/leads.json
 

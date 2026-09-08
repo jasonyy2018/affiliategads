@@ -87,8 +87,8 @@ export async function GET(req: Request) {
   const socialWebhookUrl = merged['SOCIAL_WEBHOOK_URL'] || process.env.SOCIAL_WEBHOOK_URL || '';
   const ayrshareApiKey = merged['AYRSHARE_API_KEY'] || process.env.AYRSHARE_API_KEY || '';
 
-  // 安全门禁密码
-  const adminSecretKey = merged['ADMIN_SECRET_KEY'] || process.env.ADMIN_SECRET_KEY || 'opc2026';
+  // 安全门禁密码（未配置时如实展示 Not configured，绝不展示兜底值）
+  const adminSecretKey = merged['ADMIN_SECRET_KEY'] || process.env.ADMIN_SECRET_KEY || '';
 
   return NextResponse.json({
     success: true,

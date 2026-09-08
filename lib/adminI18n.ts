@@ -19,7 +19,7 @@ export const ADMIN_I18N = {
     gateInputLabel: '管理访问密钥 (ADMIN_SECRET_KEY)',
     gatePlaceholder: '请输入访问密钥...',
     gateUnlockBtn: '解锁控制台',
-    gateHint: '开发密钥默认配置在 .env.local 中为 opc2026',
+    gateHint: '密钥由服务器环境变量或系统设置数据库提供，未配置时后台不可登录',
     gateVerifying: '正在验证安全访问凭证...',
 
     // 顶部 4 大指标
@@ -216,7 +216,7 @@ export const ADMIN_I18N = {
     gateInputLabel: 'Admin Secret Key (ADMIN_SECRET_KEY)',
     gatePlaceholder: 'Enter ADMIN_SECRET_KEY...',
     gateUnlockBtn: 'Unlock Admin Console',
-    gateHint: 'Default development key configured in .env.local as opc2026',
+    gateHint: 'The key is provided by the server environment or settings DB; the console is inaccessible until configured.',
     gateVerifying: 'Verifying security credentials...',
 
     // 顶部 4 大指标

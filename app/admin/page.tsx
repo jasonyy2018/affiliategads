@@ -1987,7 +1987,7 @@ export default function AdminDashboardPage() {
                         <span>{t.cfgAdminSecretLabel}</span>
                       </label>
                       <span className="text-[10px] bg-rose-500/10 text-rose-300 border border-rose-500/20 px-2 py-0.5 rounded-full font-mono font-bold">
-                        Protected: {settings?.adminSecretKeyMasked || 'opc2026'}
+                        Protected: {settings?.adminSecretKeyMasked || 'Not configured'}
                       </span>
                     </div>
                     <input
