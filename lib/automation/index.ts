@@ -13,6 +13,7 @@ import { runPseoGenerator } from './pseoGenerator';
 import { runContentGenerator } from './contentGenerator';
 import { runDailyReport } from './dailyReport';
 import { runGscMonitor } from './gscMonitor';
+import { runGscSync } from './gscApi';
 import { runSocialDispatch } from './socialDispatch';
 import { runPriceTracker } from './priceTrackerTask';
 import { runImageSync } from './imageSync';
@@ -38,9 +39,13 @@ export interface TaskDefinition {
 export const TASK_REGISTRY: Record<string, TaskDefinition> = {
   cron_pipeline: {
     label: '每日全自动综合流水线',
-    description: 'GSC 剪枝 → EPC 归因 → GEO 扫描 → SERP 快照 → 证据链派生 → 日报汇总',
+    description: 'GSC 拉真数据 → GSC 剪枝 → EPC 归因 → GEO 扫描 → SERP 快照 → 证据链派生 → 日报汇总',
     run: async () => {
       const steps: Array<{ name: string; result: any }> = [];
+
+      // 先拉真实 GSC 数据（未配置服务账号则静默跳过），再让剪枝引擎吃真数据
+      const gscSync = await runGscSync({ days: 90 });
+      steps.push({ name: 'GSC 数据同步', result: gscSync });
 
       const gsc = await runGscMonitor(false);
       steps.push({ name: 'GSC 生命周期审计 (dry-run)', result: gsc });
@@ -98,8 +103,13 @@ export const TASK_REGISTRY: Record<string, TaskDefinition> = {
   },
   gsc_monitor: {
     label: 'Search Console 展现监控与零展现剪枝',
-    description: '90 天零展现剪枝 / 180 天低展现合并审计',
+    description: '90 天零展现剪枝 / 180 天低展现合并审计（数据源 data/gsc_performance.csv，可由 gsc_sync 拉取）',
     run: () => runGscMonitor(false),
+  },
+  gsc_sync: {
+    label: 'Google Search Console 数据同步 + sitemap 提交',
+    description: '服务账号拉取近 90 天真实点击/展现/排名写回 gsc_performance.csv，并 best-effort 提交 sitemap（需 GSC_SERVICE_ACCOUNT_JSON/_PATH）',
+    run: () => runGscSync({ days: 90 }),
   },
   pseo_generate: {
     label: 'pSEO 矩阵对比页批量构建',

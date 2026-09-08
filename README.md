@@ -47,7 +47,8 @@ npm run dev
 | `gemini_audit` | AI Overview 引用可见度审计 |
 | `trust_syndicate` | Reddit/Medium/Quora 证据链派生 |
 | `bing_submit` | Bing Webmaster URL 批量推送 |
-| `gsc_monitor` | 零展现页面剪枝审计 |
+| `gsc_monitor` | Search Console 展现监控与零展现剪枝（数据源 `data/gsc_performance.csv`）|
+| `gsc_sync` | GSC 服务账号拉真实点击/展现/排名写回 CSV + best-effort 提交 sitemap（需 GSC 服务账号）|
 | `pseo_generate` | pSEO 矩阵页批量生成（支持 dry-run） |
 | `content_generate` | 单品评测生成（AI 或数据驱动模板） |
 | `daily_report` | 每日经营看板 |
