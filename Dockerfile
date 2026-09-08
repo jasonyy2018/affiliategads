@@ -51,9 +51,11 @@ RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
 # 拷贝静态资源与 standalone 产物
-# 注意：public 目录可为空（保持目录结构存在即可）
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# public 静态文件（站点验证 token + IndexNow key）必须随镜像部署；
+# 缺失会导致 Bing 验证 / IndexNow keyLocation 回查 404，收录通道静默失效
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
 # 数据与内容资产（运行时由自动化引擎读写）
 COPY --from=builder --chown=nextjs:nodejs /app/data ./data

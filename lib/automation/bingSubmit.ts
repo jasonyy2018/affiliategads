@@ -96,7 +96,9 @@ export async function runBingSubmit(apply = true): Promise<BingSubmitResult> {
 
     // 2. IndexNow 全球中继网关广播 (同步通知 Bing, Yandex, Naver, Seznam)
     let indexNowStatus = '—';
-    const indexNowKey = process.env.INDEXNOW_KEY || '334ad38d1048ca468ee60121b2617001';
+    // IndexNow 要求 key 为 UUID，且在 https://<host>/<key>.txt 公开服务 (public/ 已部署)。
+    // 环境变量可覆盖；默认用随镜像部署的默认 key。
+    const indexNowKey = (process.env.INDEXNOW_KEY || 'b5e19f7a-3c64-4d2e-8a91-7f0c2e6d4b3a').trim();
     if (apply && !siteUrl.includes('localhost') && !siteUrl.includes('127.0.0.1')) {
       try {
         const host = new URL(siteUrl).host;
