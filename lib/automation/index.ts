@@ -19,6 +19,7 @@ import { runPriceTracker } from './priceTrackerTask';
 import { runImageSync } from './imageSync';
 import { runPreLaunchAudit } from './preLaunchAudit';
 import { runMatrixOpportunities } from './matrixOpportunities';
+import { runProductImport, runMarketRebalance } from './productImport';
 
 export interface TaskResult {
   success: boolean;
@@ -67,6 +68,9 @@ export const TASK_REGISTRY: Record<string, TaskDefinition> = {
 
       const report = await runDailyReport();
       steps.push({ name: '每日经营看板', result: report });
+
+      const rebalance = await runMarketRebalance();
+      steps.push({ name: '市场需求重排', result: rebalance });
 
       return { steps, summary: steps.map((s) => `${s.name}: ${s.result.summary || 'OK'}`).join(' | ') };
     },
@@ -150,6 +154,16 @@ export const TASK_REGISTRY: Record<string, TaskDefinition> = {
     label: 'pSEO 矩阵扩产机会分析',
     description: '扫描 READY/GAP 组合，数据驱动扩产决策（输出 reports/matrix_opportunities.md）',
     run: () => runMatrixOpportunities(),
+  },
+  product_import: {
+    label: '批量导入商品 (CSV)',
+    description: '粘贴 asin/价格/佣金率/品类 CSV → 去重入库 + 自动补内容 + 市场重排（无需 API）',
+    run: (opts) => runProductImport(typeof opts?.csv === 'string' ? opts.csv : ''),
+  },
+  market_rebalance: {
+    label: '市场需求重排 (无 API)',
+    description: '按 利润×需求×季节 给全库商品重新打分，输出主推/补缺/剪枝行动清单（reports/market_rebalance.md）',
+    run: () => runMarketRebalance(),
   },
 };
 

@@ -21,6 +21,9 @@ gcp-*.json
 # 运行时用户数据（含 PII：买家邮箱）
 data/leads.json
 
+# 批量导入的 CSV 审计记录（运行时生成）
+data/imports/
+
 # 日志与系统文件
 *.log
 .DS_Store

@@ -160,6 +160,11 @@ export default function AdminDashboardPage() {
   const [isExecuting, setIsExecuting] = useState(false);
   const [execStatus, setExecStatus] = useState<'idle' | 'running' | 'success' | 'error'>('idle');
 
+  // 批量导入商品 CSV
+  const [importCsv, setImportCsv] = useState<string>('');
+  const [importBusy, setImportBusy] = useState(false);
+  const [importMsg, setImportMsg] = useState<string>('');
+
   // 商品编辑/新建 Modal 状态
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Partial<ProductItem>>({
@@ -351,6 +356,35 @@ export default function AdminDashboardPage() {
       setExecStatus('error');
     } finally {
       setIsExecuting(false);
+    }
+  };
+
+  // 批量导入商品 CSV（无 API）：粘贴 → 入库 + 补内容 + 市场重排
+  const handleImportCsv = async () => {
+    if (!importCsv.trim()) {
+      setImportMsg(lang === 'zh' ? '请粘贴 CSV（asin 必填）' : 'Paste CSV (asin required)');
+      return;
+    }
+    setImportBusy(true);
+    setImportMsg('');
+    try {
+      const res = await fetch('/api/admin/run-task', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...adminHeaders() },
+        body: JSON.stringify({ task: 'product_import', csv: importCsv }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setImportMsg(`✅ ${data.summary || 'imported'}`);
+        setImportCsv('');
+        fetchProducts();
+      } else {
+        setImportMsg(`❌ ${data.error || 'import failed'}`);
+      }
+    } catch (err: any) {
+      setImportMsg(`❌ ${err.message}`);
+    } finally {
+      setImportBusy(false);
     }
   };
 
@@ -1167,6 +1201,72 @@ export default function AdminDashboardPage() {
                   className="w-full py-2.5 px-3 bg-slate-800 hover:bg-slate-750 text-slate-200 text-xs font-bold rounded-xl border border-slate-700 flex items-center justify-center gap-1.5 transition"
                 >
                   <span>{lang === 'zh' ? '扫描机会' : 'Scan Opportunities'}</span>
+                  <ArrowUpRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              {/* 工具 12: 批量导入商品 (CSV, 无 API) */}
+              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3 hover:border-amber-500/40 transition lg:col-span-2">
+                <div className="flex items-center justify-between">
+                  <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold">
+                    <Database className="w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] font-mono text-slate-500">engine: productImport</span>
+                </div>
+                <div>
+                  <h4 className="font-bold text-white text-sm">
+                    {lang === 'zh' ? '批量导入商品 (CSV, 无需 API)' : 'Batch Import Products (CSV, no API)'}
+                  </h4>
+                  <p className="text-xs text-slate-400 mt-1">
+                    {lang === 'zh'
+                      ? '粘贴 asin/价格/佣金率/品类，自动去重入库 + 补内容 + 市场重排。'
+                      : 'Paste asin/price/commission/category — auto upsert + generate content + rebalance.'}
+                  </p>
+                </div>
+                <textarea
+                  value={importCsv}
+                  onChange={(e) => setImportCsv(e.target.value)}
+                  rows={4}
+                  placeholder={'asin,title,brand,price,commission_rate,category,use_cases\nB0XXXX,Salomon X Ultra 5 GTX,Salomon,189.95,0.045,hiking boots,flat feet|heavy load'}
+                  className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-[11px] font-mono text-slate-300 placeholder:text-slate-600 resize-y focus:border-amber-500/60 focus:outline-none"
+                />
+                <div className="flex items-center gap-3">
+                  <button
+                    disabled={importBusy}
+                    onClick={handleImportCsv}
+                    className="py-2.5 px-4 bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 text-xs font-bold rounded-xl border border-amber-500/40 flex items-center justify-center gap-1.5 transition disabled:opacity-50"
+                  >
+                    {importBusy ? (lang === 'zh' ? '导入中…' : 'Importing…') : lang === 'zh' ? '导入并重排' : 'Import & Rebalance'}
+                    {!importBusy && <ArrowUpRight className="w-3.5 h-3.5" />}
+                  </button>
+                  {importMsg && <span className={`text-[11px] ${importMsg.startsWith('✅') ? 'text-emerald-400' : 'text-rose-400'}`}>{importMsg}</span>}
+                </div>
+              </div>
+
+              {/* 工具 13: 市场需求重排 (无 API) */}
+              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3 hover:border-emerald-500/40 transition">
+                <div className="flex items-center justify-between">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold">
+                    <BarChart3 className="w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] font-mono text-slate-500">engine: marketRebalance</span>
+                </div>
+                <div>
+                  <h4 className="font-bold text-white text-sm">
+                    {lang === 'zh' ? '市场需求重排 (无 API)' : 'Market Rebalance (no API)'}
+                  </h4>
+                  <p className="text-xs text-slate-400 mt-1">
+                    {lang === 'zh'
+                      ? '按 利润×需求×季节 给全库商品重新打分 → 主推/补缺/剪枝清单。'
+                      : 'Re-score every SKU by profit × demand × season → push / gap / prune list.'}
+                  </p>
+                </div>
+                <button
+                  disabled={isExecuting}
+                  onClick={() => runPyTask('market_rebalance', lang === 'zh' ? '市场重排' : 'Market Rebalance')}
+                  className="w-full py-2.5 px-3 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 text-xs font-bold rounded-xl border border-emerald-500/40 flex items-center justify-center gap-1.5 transition"
+                >
+                  <span>{lang === 'zh' ? '重排全库' : 'Rebalance All'}</span>
                   <ArrowUpRight className="w-3.5 h-3.5" />
                 </button>
               </div>
