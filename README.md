@@ -53,6 +53,39 @@ npm run dev
 | `content_generate` | 单品评测生成（AI 或数据驱动模板） |
 | `daily_report` | 每日经营看板 |
 | `social_dispatch` | 社媒 Webhook 广播 |
+| `price_tracker` | 价格快照采集与降价检测（PA-API 或基线模式）|
+| `matrix_opportunities` | pSEO 矩阵扩产机会分析（READY/GAP 扫描）|
+| `market_rebalance` | 市场需求重排：利润×需求×季节给全库打分，输出主推/补缺/剪枝清单（无需 API）|
+| `product_import` | 批量导入商品：粘贴 CSV → 去重入库 + 补内容 + 重排（后台专用框）|
+
+## 无人值守自动化（零付费 API）
+
+所有任务都可由宿主机 cron 自动触发，无需进后台点按钮、无需任何付费调度服务：
+
+**1. 端点**（已内建）：`GET/POST /api/cron/<task_key>`，HMAC-SHA256 签名鉴权（密钥 = `ADMIN_SECRET_KEY`，与登录密码同源，后台改密码后 cron 自动失效旧签名）+ 5 分钟时间窗防重放。未配密钥时端点返回 404（不暴露存在）。
+
+**2. 宿主机脚本**：`scripts/run-cron-task.sh`（随仓库部署到服务器）
+
+```bash
+chmod +x scripts/run-cron-task.sh
+./run-cron-task.sh cron_pipeline http://127.0.0.1:3000   # 手动试跑
+```
+
+**3. crontab**（`crontab -e`，按需调整频率）：
+
+```cron
+# 每天凌晨 03:17 全流程（剪枝→EPC→GEO→SERP→证据链→日报→市场重排）
+17 3 * * * /root/dockerdata/affiliategads/scripts/run-cron-task.sh cron_pipeline
+# 每 2 小时价格快照 + 降价检测（无 PA-API 时自动基线模式）
+23 */2 * * * /root/dockerdata/affiliategads/scripts/run-cron-task.sh price_tracker
+# 每周一 04:41 pSEO 矩阵扩产（有 READY 组合才会新增页面）
+41 4 * * 1 /root/dockerdata/affiliategads/scripts/run-cron-task.sh pseo_generate
+# 每小时提交/发现 sitemap（IndexNow 广播，免费）
+51 * * * * /root/dockerdata/affiliategads/scripts/run-cron-task.sh bing_submit
+# 每天人工上班前先看一眼日报（可选提醒，跑完任务看 reports/ 即可）
+```
+
+脚本读 `ADMIN_SECRET_KEY` 的来源：环境变量优先，其次同目录 `.env.local`（与站点配置同文件、同密码）。cron 日志建议在 crontab 行尾加 `>> /var/log/affiliategads-cron.log 2>&1`。
 
 API 调用示例：
 

@@ -18,7 +18,11 @@ const ATTEMPT_WINDOW_MS = 5 * 60 * 1000;
 // 登录限速表 (内存级，进程内有效)
 const attempts = new Map<string, { count: number; resetAt: number }>();
 
-function getSecret(): string {
+/**
+ * 解析当前生效的 ADMIN_SECRET_KEY（登录密码与 cron 签名共用同一密钥源）。
+ * 优先级：环境变量 → data/settings.json → .env.local/.env → 空（fail-closed）。
+ */
+export function getSecret(): string {
   // 1. 优先读取已注入的环境变量
   const envSecret = process.env.ADMIN_SECRET_KEY;
   if (envSecret && envSecret.trim().length >= 6) {
